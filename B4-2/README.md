@@ -5,6 +5,17 @@
 
 ---
 
+## Monitoring Script
+
+장애 발생 전·후의 CPU 및 메모리 사용량을 관제하기 위해 `monitor-leak.sh`를 사용하였다.
+
+- `agent-leak-app-arm64` 관련 PID 전체 탐색
+- 관련 프로세스의 CPU 사용률 합산
+- 메모리 사용량을 MB 및 백분율로 기록
+- 결과를 `monitor-leak.log`에 기록
+
+---
+
 ## 1. OOM / Memory Leak
 
 ### Before
