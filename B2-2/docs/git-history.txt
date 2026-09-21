@@ -1,0 +1,43 @@
+# Git History Evidence
+
+최종 제출 직전에 아래 명령의 결과를 이 파일에 붙여 넣습니다.
+
+```bash
+git log --oneline --graph --all
+```
+
+```text
+* 724f86e docs: update member 3 collaboration info
+*   7ae9816 Merge pull request #12 from Codyssey2-2/docs/4-member-3-profile
+|\
+| *   ceb504b Merge branch 'main' into docs/4-member-3-profile
+| |\
+| * | b117b00 docs: add member 3 team profile
+* | |   31012d9 Merge pull request #11 from Codyssey2-2/feature/10-kimhyunjung-collaboration-checklist
+|\ \ \
+| |_|/
+|/| |
+| * | 97065d9 docs: add kim collaboration checklist
+* | |   6c77c38 Merge pull request #9 from Codyssey2-2/feature/8-cheolho-readme
+|\ \ \
+| |/ /
+|/| |
+| * | 6cfe812 docs: record readme conflict resolution
+| * | a8bba2f docs: update member-2 label in readme
+|/ /
+* |   dd19348 Merge pull request #5 from Codyssey2-2/feature/2-kimhyunjung-profile
+|\ \
+| * | c52e184 docs: add kim hyunjung team profile
+| |/
+* |   a7c2714 Merge pull request #7 from Codyssey2-2/feature/6-cheolho-profile
+|\ \
+| |/
+|/|
+| * 25e4111 docs: update member-2 introduction
+|/
+*   7afc1d4 Merge pull request #1 from Codyssey2-2/feature/team-introduction-scaffold
+|\
+| * 31ed548 초기_문서
+|/
+* b3602ab [docs][n/a][chul5] create empty README.md
+```
