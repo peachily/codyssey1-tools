@@ -1,0 +1,7 @@
+.DS_Store
+
+# Local SQLite database and temporary files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
