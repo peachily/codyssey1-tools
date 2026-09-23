@@ -1,5 +1,7 @@
 # Pokémon Trainer Database
 
+![데이터베이스 관계도](results/db.png)
+
 ## 데이터베이스 구성
 
 - `trainer`: 트레이너 정보
