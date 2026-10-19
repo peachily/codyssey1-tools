@@ -1,14 +1,21 @@
 import argparse
+# 터미널에서 사용자가 입력한 명령어와 옵션을 읽고 해석하는 Python 기본 라이브러리
 import math
 import re
 import sys
 
 from ai_client import APIError, generate_text
+# AI 서버에 요청을 보내고 답변을 받음
 from config import DEFAULT_MAX_TOKENS, DEFAULT_MODEL, DEFAULT_TEMPERATURE, get_api_key, model_parameters
+# AI 모델과 API 주소 등 기본 설정
 from git_utils import GitError, check_repository, collect_changes
+# Git에서 변경된 내용을 가져오는 파일
 from prompts import build_messages
+# AI에게 어떤 글을 작성할지 지시
 from safe_mode import mask_sensitive_data
+# AI에게 보내면 안 되는 정보를 보호
 from validators import ValidationError, validate_commit, validate_pr
+# AI가 만든 글의 형식을 검사
 
 
 class KoreanParser(argparse.ArgumentParser):
@@ -39,7 +46,7 @@ def parse_model(value: str) -> str:
         raise argparse.ArgumentTypeError("공백 없는 모델 이름을 입력해 주세요.")
     return value
 
-
+# 사용할 명령어와 옵션의 규칙을 미리 정의
 def build_parser() -> argparse.ArgumentParser:
     parser = KoreanParser(description="Giteuk: Git 변경사항으로 커밋 메시지와 PR 초안을 만들어요.", add_help=False)
     parser.add_argument("-h", "--help", action="help", help="사용법을 표시하고 종료")

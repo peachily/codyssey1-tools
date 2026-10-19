@@ -1,3 +1,5 @@
+# AI 서버에 요청을 보내고 답변을 받음
+
 import requests
 
 from config import API_URL, REQUEST_TIMEOUT, model_parameters
@@ -6,9 +8,10 @@ from config import API_URL, REQUEST_TIMEOUT, model_parameters
 class APIError(Exception):
     pass
 
-
+# AI 서버에서 오류가 발생했을 때 상태 코드에 맞는 오류 메시지를 만듦
 def response_error(response: requests.Response) -> APIError:
     status = response.status_code
+    # 서버가 보내준 HTTP 상태 코드에 따라 오류 처리
     if status in {401, 403}:
         message = "AI API 인증에 실패했어요. AI_API_KEY와 모델 사용 권한을 확인해 주세요."
     elif status == 429:
@@ -28,12 +31,12 @@ def response_error(response: requests.Response) -> APIError:
         message = "AI API 요청에 실패했어요. Codyssey API의 주소와 서비스 상태를 확인해 주세요."
     return APIError(f"{message} (HTTP {status})")
 
-
+# AI에게 요청을 보내고 생성된 텍스트를 반환
 def generate_text(api_key: str, messages: list[dict[str, str]], model: str,
                   temperature: float, max_tokens: int) -> str:
     payload = {"model": model, "messages": messages,
                **model_parameters(model, temperature, max_tokens)}
-    try:
+    try: # 서버에 HTTP POST 요청 보내기
         response = requests.post(
             API_URL,
             headers={"Authorization": f"Bearer {api_key}"},
@@ -42,13 +45,14 @@ def generate_text(api_key: str, messages: list[dict[str, str]], model: str,
         if not 200 <= response.status_code < 300:
             raise response_error(response)
         response.raise_for_status()
+    # 시간 초과, 연결 오류 처리
     except requests.Timeout:
         raise APIError("AI 응답을 기다리는 시간이 지났어요. 잠시 뒤 다시 시도해 주세요.") from None
     except requests.RequestException:
         raise APIError("AI와 연결하지 못했어요.\n인터넷 연결을 확인한 뒤 다시 시도해 주세요.") from None
     try:
-        data = response.json()
-        choice = data["choices"][0]
+        data = response.json() # 응답을 Python 데이터로 변환
+        choice = data["choices"][0] # AI가 작성한 글 꺼내기
         content = choice["message"]["content"]
         finish_reason = choice.get("finish_reason")
     except (ValueError, KeyError, IndexError, TypeError, AttributeError):

@@ -1,3 +1,6 @@
+# Git에서 변경된 내용을 가져오는 파일
+# => 바뀐 파일 목록(filenames), 변경 내용(diff)
+
 import json
 import os
 import subprocess
@@ -9,7 +12,7 @@ from safe_mode import is_sensitive_file
 class GitError(Exception):
     pass
 
-
+# Git 명령을 실제로 실행
 def run_git(arguments: list[str], cwd: Path) -> str:
     environment = os.environ.copy()
     environment["GIT_OPTIONAL_LOCKS"] = "0"
@@ -41,7 +44,7 @@ def run_git(arguments: list[str], cwd: Path) -> str:
         )
     return os.fsdecode(result.stdout)
 
-
+# Git 저장소인지 확인
 def check_repository(cwd: Path | None = None) -> Path:
     current = (cwd or Path.cwd()).resolve()
     root_text = run_git(["rev-parse", "--show-toplevel"], current).rstrip("\n")
@@ -50,9 +53,10 @@ def check_repository(cwd: Path | None = None) -> Path:
         raise GitError("프로젝트의 Git 최상위 폴더에서 실행해 주세요.\ngit rev-parse --show-toplevel로 위치를 확인할 수 있어요.")
     return root
 
-
+# 변경된 파일 목록 확인
 def read_status(root: Path) -> tuple[bool, list[tuple[str, str | None, bool]]]:
     output = run_git(["status", "--porcelain=v2", "--branch", "-z", "--untracked-files=all"], root)
+    # porcelain=v2: 프로그램이 분석하기 편하도록 정해진 형식으로 결과를 보여주는 옵션
     initial = "# branch.oid (initial)\0" in output
     records = iter(output.split("\0"))
     files = []
@@ -69,7 +73,7 @@ def read_status(root: Path) -> tuple[bool, list[tuple[str, str | None, bool]]]:
             files.append((record.split(" ", 9)[9], next(records), False))
     return initial, files
 
-
+# Git이 아직 추적하지 않는 새 파일의 내용 수집
 def new_file_diff(root: Path, filename: str) -> str:
     file = root / filename
     label = json.dumps(filename, ensure_ascii=False)
@@ -92,7 +96,7 @@ def new_file_diff(root: Path, filename: str) -> str:
     lines = "\n".join("+" + line for line in text.splitlines())
     return f"신규 파일 {label}\n--- /dev/null\n+++ {label}\n{lines}"
 
-
+# 변경된 코드 확인
 def collect_changes(root: Path, safe_mode: bool = True) -> tuple[list[str], str, int]:
     initial, entries = read_status(root)
     filenames, patches = [], []

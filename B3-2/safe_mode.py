@@ -1,3 +1,5 @@
+# AI에게 보내면 안 되는 정보를 보호
+
 import re
 from pathlib import PurePosixPath
 

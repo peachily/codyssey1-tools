@@ -1,3 +1,5 @@
+# AI에게 어떤 글을 작성할지 지시
+
 import json
 
 COMMON_RULES = """당신은 Git을 처음 배우는 사람을 돕는 Giteuk입니다.
@@ -29,7 +31,7 @@ PR_RULES = """PR 초안을 작성하세요.
 각 섹션에는 내용이 있는 불릿을 최소 1개 넣으세요.
 """
 
-
+# 프롬프트 문자열을 +로 연결
 def build_messages(command: str, filenames: list[str], diff: str) -> list[dict[str, str]]:
     rules = COMMIT_RULES if command == "commit" else PR_RULES
     data = json.dumps({"files": filenames, "diff": diff}, ensure_ascii=False)

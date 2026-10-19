@@ -1,3 +1,5 @@
+# AI 모델과 API 주소 등 기본 설정
+
 import os
 import re
 
