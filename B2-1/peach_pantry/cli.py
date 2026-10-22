@@ -1,6 +1,7 @@
 """argparse 기반 명령 등록과 실행 흐름."""
 
 import argparse
+from contextlib import closing
 from pathlib import Path
 from typing import Callable, Sequence, TypeVar
 
@@ -71,6 +72,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     parsers["list"].add_argument("--limit", type=int, default=10, metavar="N", help="출력 건수 (기본값: 10)")
     search = parsers["search"]
+    search.epilog = "메모는 부분 일치, 태그는 정확히 일치합니다. 여러 조건은 모두 만족해야 합니다. 정렬에 결과 크기에 비례하는 임시 디스크 공간을 사용합니다."
     add_date_range(search)
     search.add_argument("--category", metavar="카테고리", help="카테고리 조건")
     search.add_argument("--type", choices=("income", "expense"), help="거래 타입 조건")
@@ -111,7 +113,7 @@ def add_date_range(parser: argparse.ArgumentParser) -> None:
 
 def dispatch(args: argparse.Namespace) -> int:
     """구현된 명령을 서비스에 연결한다."""
-    if args.command in ("add", "list"):
+    if args.command in ("add", "list", "search", "update", "delete"):
         if args.command == "list" and args.limit <= 0:
             raise PantryError("조회 건수가 올바르지 않습니다.",
                               "--limit에 0보다 큰 정수를 지정해 주세요.", exit_code=2)
@@ -120,8 +122,20 @@ def dispatch(args: argparse.Namespace) -> int:
         service = PantryService(repository)
         if args.command == "add":
             add_interactive(service)
-        else:
+        elif args.command == "list":
             print_transactions(service.list_transactions(args.limit))
+        elif args.command == "search":
+            with closing(service.search_transactions(
+                date_from=args.date_from, date_to=args.date_to,
+                category=args.category, type=args.type, q=args.q, tag=args.tag,
+            )) as transactions:
+                print_transactions(transactions, title="검색 결과",
+                                   empty_message="검색 조건에 맞는 거래가 없습니다.")
+        elif args.command == "update":
+            update_interactive(service, args.transaction_id)
+        else:
+            service.delete_transaction(args.transaction_id)
+            print(f"거래가 삭제되었습니다. 거래 ID: {args.transaction_id}")
         return 0
     raise PantryError(
         f"'{args.command}' 기능은 아직 구현되지 않았습니다.",
@@ -157,6 +171,29 @@ def add_interactive(service: PantryService) -> None:
         memo=memo, tags=tags,
     )
     print(f"\n거래가 저장되었습니다. 거래 ID: {transaction.id}")
+
+
+def prompt_update(label: str, current: T, validator: Callable[[str], T]) -> T:
+    """빈 입력은 기존 값을 유지하고 변경 입력은 검증한다."""
+    return prompt_value(f"{label} [{current}] (Enter: 유지): ",
+                        lambda value: current if value == "" else validator(value))
+
+
+def update_interactive(service: PantryService, transaction_id: str) -> None:
+    """각 필드를 수정하거나 Enter로 기존 값을 유지한다."""
+    current = service.get_transaction(transaction_id)
+    print(format_title(f"거래 수정 | {current.id}"))
+    date = prompt_update("날짜 (YYYY-MM-DD)", current.date, parse_date)
+    transaction_type = prompt_update("타입 (income/expense)", current.type, parse_type)
+    print("카테고리: " + " / ".join(format_category(name) for name in service.category_names()))
+    category = prompt_update("카테고리", current.category, service.validate_category)
+    amount = prompt_update("금액", current.amount, parse_amount)
+    memo = prompt_update("메모", current.memo, lambda value: value)
+    tags_text = input(f"태그 [{', '.join(current.tags)}] (쉼표 구분, Enter: 유지): ")
+    tags = current.tags if tags_text == "" else parse_tags(tags_text)
+    service.update_transaction(transaction_id, date=date, type=transaction_type,
+                               category=category, amount=amount, memo=memo, tags=tags)
+    print(f"\n거래가 수정되었습니다. 거래 ID: {transaction_id}")
 
 
 @handle_errors

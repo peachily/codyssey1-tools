@@ -41,14 +41,15 @@ def format_transaction(transaction: Transaction) -> str:
     )
 
 
-def print_transactions(transactions: Iterable[Transaction]) -> None:
+def print_transactions(transactions: Iterable[Transaction], *, title: str = "최근 거래",
+                       empty_message: str = "등록된 거래가 없습니다. add 명령으로 첫 거래를 기록해 주세요.") -> None:
     """목록과 거래가 없는 경우의 안내를 출력한다."""
-    print(format_title("최근 거래"))
+    print(format_title(title))
     count = 0
     for transaction in transactions:
         print(f"\n{format_transaction(transaction)}")
         count += 1
     if count == 0:
-        print("\n등록된 거래가 없습니다. add 명령으로 첫 거래를 기록해 주세요.")
+        print(f"\n{empty_message}")
     else:
         print(f"\n총 {count}건")
