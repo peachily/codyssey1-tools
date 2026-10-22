@@ -28,6 +28,19 @@ def format_category(name: str) -> str:
     return f"{CATEGORY_EMOJIS.get(name, '📦')} {name}"
 
 
+def print_categories(names: Iterable[str]) -> None:
+    """이모지를 포함한 카테고리 목록 또는 빈 목록 안내를 출력한다."""
+    print(format_title("카테고리 목록"))
+    count = 0
+    for name in names:
+        print(f"  {format_category(name)}")
+        count += 1
+    if count == 0:
+        print("등록된 카테고리가 없습니다. category add로 등록해 주세요.")
+    else:
+        print(f"\n총 {count}개")
+
+
 def format_transaction(transaction: Transaction) -> str:
     """이모지 너비에 의존하지 않도록 필드를 구분자로 나누어 표시한다."""
     sign = "+" if transaction.type == "income" else "-"

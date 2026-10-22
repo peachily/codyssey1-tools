@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Callable, Sequence, TypeVar
 
 from .errors import PantryError, handle_errors
-from .formatter import format_category, format_title, print_error, print_transactions
+from .formatter import format_category, format_title, print_categories, print_error, print_transactions
 from .repository import PantryRepository
 from .service import PantryService
 from .validators import parse_amount, parse_date, parse_tags, parse_type
@@ -113,7 +113,7 @@ def add_date_range(parser: argparse.ArgumentParser) -> None:
 
 def dispatch(args: argparse.Namespace) -> int:
     """구현된 명령을 서비스에 연결한다."""
-    if args.command in ("add", "list", "search", "update", "delete"):
+    if args.command in ("add", "list", "search", "update", "delete", "category", "budget"):
         if args.command == "list" and args.limit <= 0:
             raise PantryError("조회 건수가 올바르지 않습니다.",
                               "--limit에 0보다 큰 정수를 지정해 주세요.", exit_code=2)
@@ -133,9 +133,21 @@ def dispatch(args: argparse.Namespace) -> int:
                                    empty_message="검색 조건에 맞는 거래가 없습니다.")
         elif args.command == "update":
             update_interactive(service, args.transaction_id)
-        else:
+        elif args.command == "delete":
             service.delete_transaction(args.transaction_id)
             print(f"거래가 삭제되었습니다. 거래 ID: {args.transaction_id}")
+        elif args.command == "category":
+            if args.category_command == "add":
+                category = service.add_category(args.name)
+                print(f"카테고리가 등록되었습니다. {format_category(category.name)}")
+            elif args.category_command == "list":
+                print_categories(service.category_names())
+            else:
+                service.remove_category(args.name)
+                print(f"카테고리가 삭제되었습니다. {format_category(args.name.strip())}")
+        else:
+            budget = service.set_budget(args.month, args.amount)
+            print(f"{budget.month} 예산이 저장되었습니다. {budget.amount:,}원")
         return 0
     raise PantryError(
         f"'{args.command}' 기능은 아직 구현되지 않았습니다.",
@@ -157,7 +169,7 @@ def add_interactive(service: PantryService) -> None:
     categories = service.category_names()
     if not categories:
         raise PantryError("등록된 카테고리가 없어 거래를 추가할 수 없습니다.",
-                          "카테고리를 먼저 등록해 주세요.")
+                          "category add로 카테고리를 먼저 등록해 주세요.")
     print(format_title("거래 추가"))
     date = prompt_value("날짜 (YYYY-MM-DD): ", parse_date)
     transaction_type = prompt_value("타입 (income/expense): ", parse_type)

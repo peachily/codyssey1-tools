@@ -28,6 +28,13 @@ def validate_date(value: str) -> None:
     date.fromisoformat(value)
 
 
+def validate_month(value: str) -> None:
+    """실제로 존재하는 YYYY-MM 월인지 확인한다."""
+    if not isinstance(value, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}", value):
+        raise ValueError("월은 YYYY-MM 형식이어야 합니다.")
+    date.fromisoformat(f"{value}-01")
+
+
 @dataclass(frozen=True)
 class Transaction:
     """이모지가 포함되지 않은 하나의 거래 레코드."""
@@ -88,7 +95,5 @@ class Budget:
     amount: int
 
     def __post_init__(self) -> None:
-        if not isinstance(self.month, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}", self.month):
-            raise ValueError("월은 YYYY-MM 형식이어야 합니다.")
-        date.fromisoformat(f"{self.month}-01")
+        validate_month(self.month)
         validate_amount(self.amount)

@@ -3,7 +3,7 @@
 import re
 
 from .errors import PantryError
-from .models import validate_amount, validate_date
+from .models import validate_amount, validate_date, validate_month
 
 
 def parse_date(value: str) -> str:
@@ -50,3 +50,23 @@ def parse_amount(value: str) -> int:
 def parse_tags(value: str) -> tuple[str, ...]:
     """쉼표로 구분한 태그를 정리하고 빈 항목은 제외한다."""
     return tuple(tag.strip() for tag in value.split(",") if tag.strip())
+
+
+def parse_month(value: str) -> str:
+    """월 입력을 검증하고 앞뒤 공백을 제거한다."""
+    value = value.strip()
+    try:
+        validate_month(value)
+    except ValueError as exc:
+        raise PantryError("월 형식이나 값이 올바르지 않습니다.",
+                          "실제로 존재하는 월을 YYYY-MM 형식으로 입력해 주세요.") from exc
+    return value
+
+
+def parse_category_name(value: str) -> str:
+    """카테고리의 한글 저장 이름을 검증한다."""
+    value = value.strip()
+    if not re.fullmatch(r"[가-힣]+(?: +[가-힣]+)*", value):
+        raise PantryError("카테고리 이름이 올바르지 않습니다.",
+                          "이모지 없이 한글 이름을 입력해 주세요. 단어 사이 공백은 사용할 수 있습니다.")
+    return value

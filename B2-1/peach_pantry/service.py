@@ -1,4 +1,4 @@
-"""화면 입출력과 독립적인 거래 추가 및 조회 규칙."""
+"""화면 입출력과 독립적인 거래, 카테고리 및 예산 관리 규칙."""
 
 import heapq
 from contextlib import closing
@@ -6,14 +6,14 @@ from dataclasses import replace
 from typing import Iterator
 
 from .errors import PantryError
-from .models import Transaction, transaction_number
+from .models import Budget, Category, Transaction, transaction_number
 from .repository import PantryRepository
 from .sorting import latest_first
-from .validators import check_amount, parse_date, parse_type
+from .validators import check_amount, parse_category_name, parse_date, parse_month, parse_type
 
 
 class PantryService:
-    """거래 검증과 메모리 효율적인 최신 거래 조회를 담당한다."""
+    """데이터 검증과 가계부 관리 규칙을 적용한다."""
 
     def __init__(self, repository: PantryRepository) -> None:
         self.repository = repository
@@ -29,6 +29,39 @@ class PantryService:
             raise PantryError("등록되지 않은 카테고리입니다.",
                               "안내된 카테고리 이름을 이모지 없이 입력해 주세요.")
         return name
+
+    def add_category(self, name: str) -> Category:
+        """이름 중복을 차단하고 카테고리를 영구 저장한다."""
+        name = parse_category_name(name)
+        categories = list(self.repository.iter_categories())
+        if any(category.name == name for category in categories):
+            raise PantryError(f"'{name}' 카테고리는 이미 등록되어 있습니다.",
+                              "category list로 확인하거나 다른 이름을 입력해 주세요.")
+        category = Category(name)
+        self.repository.save_categories([*categories, category])
+        return category
+
+    def remove_category(self, name: str) -> None:
+        """사용 중인 카테고리는 차단하고 나머지는 안전하게 삭제한다."""
+        name = parse_category_name(name)
+        categories = list(self.repository.iter_categories())
+        if not any(category.name == name for category in categories):
+            raise PantryError(f"'{name}' 카테고리를 찾을 수 없습니다.",
+                              "category list로 등록된 이름을 확인해 주세요.")
+        with closing(self.repository.iter_transactions()) as transactions:
+            for transaction in transactions:
+                if transaction.category == name:
+                    raise PantryError(f"'{name}' 카테고리는 거래에서 사용 중입니다.",
+                                      "해당 거래의 카테고리를 수정하거나 거래를 삭제한 뒤 다시 시도해 주세요.")
+        self.repository.save_categories(category for category in categories if category.name != name)
+
+    def set_budget(self, month: str, amount: int) -> Budget:
+        """월별 예산을 저장하며 같은 월은 기존 금액을 대체한다."""
+        budget = Budget(parse_month(month), check_amount(amount))
+        budgets = [existing for existing in self.repository.iter_budgets()
+                   if existing.month != budget.month]
+        self.repository.save_budgets([*budgets, budget])
+        return budget
 
     def add_transaction(
         self, *, date: str, type: str, category: str, amount: int,
