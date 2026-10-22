@@ -2,10 +2,15 @@
 
 import argparse
 from pathlib import Path
-from typing import Sequence
+from typing import Callable, Sequence, TypeVar
 
 from .errors import PantryError, handle_errors
-from .formatter import format_title
+from .formatter import format_category, format_title, print_error, print_transactions
+from .repository import PantryRepository
+from .service import PantryService
+from .validators import parse_amount, parse_date, parse_tags, parse_type
+
+T = TypeVar("T")
 
 
 class PantryArgumentParser(argparse.ArgumentParser):
@@ -105,11 +110,53 @@ def add_date_range(parser: argparse.ArgumentParser) -> None:
 
 
 def dispatch(args: argparse.Namespace) -> int:
-    """후속 단계에서 연결할 명령에 현재 구현 상태를 안내한다."""
+    """구현된 명령을 서비스에 연결한다."""
+    if args.command in ("add", "list"):
+        if args.command == "list" and args.limit <= 0:
+            raise PantryError("조회 건수가 올바르지 않습니다.",
+                              "--limit에 0보다 큰 정수를 지정해 주세요.", exit_code=2)
+        repository = PantryRepository(args.data_dir)
+        repository.initialize()
+        service = PantryService(repository)
+        if args.command == "add":
+            add_interactive(service)
+        else:
+            print_transactions(service.list_transactions(args.limit))
+        return 0
     raise PantryError(
         f"'{args.command}' 기능은 아직 구현되지 않았습니다.",
-        "현재는 CLI 구성 단계입니다. '--help'로 명령과 옵션을 확인해 주세요.",
+        "'--help'로 명령과 옵션을 확인해 주세요. 해당 기능은 후속 단계에서 구현됩니다.",
     )
+
+
+def prompt_value(prompt: str, validator: Callable[[str], T]) -> T:
+    """필드가 올바를 때까지 원인과 힌트를 안내하며 재입력받는다."""
+    while True:
+        try:
+            return validator(input(prompt))
+        except PantryError as exc:
+            print_error(str(exc), exc.hint)
+
+
+def add_interactive(service: PantryService) -> None:
+    """날짜, 타입, 카테고리, 금액, 메모와 태그를 입력받는다."""
+    categories = service.category_names()
+    if not categories:
+        raise PantryError("등록된 카테고리가 없어 거래를 추가할 수 없습니다.",
+                          "카테고리를 먼저 등록해 주세요.")
+    print(format_title("거래 추가"))
+    date = prompt_value("날짜 (YYYY-MM-DD): ", parse_date)
+    transaction_type = prompt_value("타입 (income/expense): ", parse_type)
+    print("카테고리: " + " / ".join(format_category(name) for name in categories))
+    category = prompt_value("카테고리 이름: ", service.validate_category)
+    amount = prompt_value("금액 (양수 정수): ", parse_amount)
+    memo = input("메모 (선택): ")
+    tags = parse_tags(input("태그 (선택, 쉼표 구분): "))
+    transaction = service.add_transaction(
+        date=date, type=transaction_type, category=category, amount=amount,
+        memo=memo, tags=tags,
+    )
+    print(f"\n거래가 저장되었습니다. 거래 ID: {transaction.id}")
 
 
 @handle_errors

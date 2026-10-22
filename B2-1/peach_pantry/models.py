@@ -21,6 +21,13 @@ def validate_amount(amount: int) -> None:
         raise ValueError("금액은 양수 정수여야 합니다.")
 
 
+def validate_date(value: str) -> None:
+    """실제로 존재하는 YYYY-MM-DD 날짜인지 확인한다."""
+    if not isinstance(value, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value):
+        raise ValueError("날짜는 YYYY-MM-DD 형식이어야 합니다.")
+    date.fromisoformat(value)
+
+
 @dataclass(frozen=True)
 class Transaction:
     """이모지가 포함되지 않은 하나의 거래 레코드."""
@@ -35,9 +42,7 @@ class Transaction:
 
     def __post_init__(self) -> None:
         transaction_number(self.id)
-        if not isinstance(self.date, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", self.date):
-            raise ValueError("날짜는 YYYY-MM-DD 형식이어야 합니다.")
-        date.fromisoformat(self.date)
+        validate_date(self.date)
         if self.type not in ("income", "expense"):
             raise ValueError("타입은 income 또는 expense여야 합니다.")
         Category(self.category)
