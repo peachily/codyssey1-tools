@@ -26,6 +26,10 @@ def handle_errors(function: Callable[P, int]) -> Callable[P, int]:
         except PantryError as exc:
             print_error(str(exc), exc.hint)
             return exc.exit_code
+        except UnicodeError:
+            print_error("입력한 문자를 UTF-8로 처리할 수 없습니다.",
+                        "터미널과 입력 파일의 인코딩을 UTF-8로 확인한 뒤 다시 입력해 주세요.")
+            return 1
         except OSError:
             print_error("파일을 읽거나 저장할 수 없습니다.",
                         "경로, 파일 접근 권한과 저장 공간을 확인해 주세요.")

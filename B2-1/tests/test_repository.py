@@ -122,7 +122,7 @@ class RepositoryTests(unittest.TestCase):
     def test_failed_transaction_save_preserves_data_and_id_counter(self) -> None:
         self.add_transaction()
         before = self.repository.transactions_path.read_bytes()
-        with patch("peach_pantry.repository.os.replace", side_effect=OSError("failed")):
+        with patch("peach_pantry.file_io.os.replace", side_effect=OSError("failed")):
             with self.assertRaises(OSError):
                 self.add_transaction()
         self.assertEqual(before, self.repository.transactions_path.read_bytes())
@@ -156,7 +156,7 @@ class RepositoryTests(unittest.TestCase):
                     with self.assertRaises(TypeError):
                         replace_jsonl(path, [{"unsupported": object()}])
                 else:
-                    with patch(f"peach_pantry.repository.os.{failure}", side_effect=OSError("failed")):
+                    with patch(f"peach_pantry.file_io.os.{failure}", side_effect=OSError("failed")):
                         with self.assertRaises(OSError):
                             replace_jsonl(path, [{"name": "여행"}])
                 self.assertEqual(path.read_bytes(), before)
@@ -170,7 +170,7 @@ class RepositoryTests(unittest.TestCase):
             self.assertEqual(Path(source).parent, Path(destination).parent)
             real_replace(source, destination)
 
-        with patch("peach_pantry.repository.os.replace", side_effect=checked_replace):
+        with patch("peach_pantry.file_io.os.replace", side_effect=checked_replace):
             self.repository.save_categories([Category("여행")])
         self.assertEqual(list(self.repository.iter_categories()), [Category("여행")])
 

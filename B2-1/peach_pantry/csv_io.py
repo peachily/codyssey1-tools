@@ -1,12 +1,11 @@
 """고정 CSV 스키마 검증과 안전한 UTF-8 파일 입출력."""
 
 import csv
-import os
 from pathlib import Path
-import tempfile
 from typing import Iterable
 
 from .errors import PantryError
+from .file_io import atomic_text_writer
 from .models import Transaction
 from .validators import parse_amount, parse_date, parse_tags, parse_type
 
@@ -55,27 +54,16 @@ def read_csv(path: Path, categories: set[str]) -> list[dict]:
 
 def write_csv(path: Path, transactions: Iterable[Transaction]) -> int:
     """같은 폴더의 임시 CSV를 완성한 뒤 교체하고 처리 건수를 반환한다."""
-    temporary_path = None
     count = 0
     try:
-        with tempfile.NamedTemporaryFile(
-            mode="w", encoding="utf-8", newline="", dir=path.parent,
-            prefix=f".{path.name}.", suffix=".tmp", delete=False,
-        ) as target:
-            temporary_path = Path(target.name)
+        with atomic_text_writer(path) as target:
             writer = csv.writer(target)
             writer.writerow(CSV_COLUMNS)
             for transaction in transactions:
                 writer.writerow((transaction.date, transaction.type, transaction.category,
                                  transaction.amount, transaction.memo, ",".join(transaction.tags)))
                 count += 1
-            target.flush()
-            os.fsync(target.fileno())
-        os.replace(temporary_path, path)
     except (UnicodeError, csv.Error) as exc:
         raise PantryError("거래를 UTF-8 CSV로 기록할 수 없습니다.",
                           "메모와 태그의 문자열 형식을 확인해 주세요. 기존 출력 파일은 유지됩니다.") from exc
-    finally:
-        if temporary_path is not None:
-            temporary_path.unlink(missing_ok=True)
     return count

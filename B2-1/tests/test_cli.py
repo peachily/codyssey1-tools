@@ -119,6 +119,7 @@ class ErrorTests(unittest.TestCase):
             (PantryError("원인", "해결", 3), 3, "원인"),
             (OSError("detail"), 1, "파일"),
             (EOFError(), 1, "입력이 종료"),
+            (UnicodeError(), 1, "UTF-8"),
             (KeyboardInterrupt(), 130, "중단"),
         ]:
             with self.subTest(error=error), redirect_stderr(StringIO()) as output:

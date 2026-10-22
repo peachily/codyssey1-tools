@@ -194,6 +194,7 @@ class PantryService:
 
     @staticmethod
     def _check_id(transaction_id: str) -> None:
+        """조회·수정·삭제에 사용할 ID 형식을 검증한다."""
         try:
             transaction_number(transaction_id)
         except ValueError as exc:
@@ -202,6 +203,7 @@ class PantryService:
 
     @staticmethod
     def _missing_id(transaction_id: str) -> PantryError:
+        """없는 거래 ID에 대한 공통 오류를 구성한다."""
         return PantryError(f"거래 ID '{transaction_id}'를 찾을 수 없습니다.",
                            "list 명령으로 거래 ID를 확인해 주세요.")
 

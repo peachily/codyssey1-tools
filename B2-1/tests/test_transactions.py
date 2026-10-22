@@ -163,13 +163,23 @@ class TransactionTests(unittest.TestCase):
 
     def test_failed_save_reports_error_without_success_message(self) -> None:
         before = self.repository.transactions_path.read_bytes()
-        with patch("peach_pantry.repository.os.replace", side_effect=OSError("failed")):
+        with patch("peach_pantry.file_io.os.replace", side_effect=OSError("failed")):
             code, output, errors = self.run_cli(
                 ["add"], ["2026-10-22", "expense", "식비", "1", "", ""])
         self.assertEqual(code, 1)
         self.assertIn("[오류]", errors)
         self.assertNotIn("저장되었습니다", output)
         self.assertEqual(self.repository.transactions_path.read_bytes(), before)
+
+    def test_invalid_unicode_input_has_hint_and_preserves_original(self) -> None:
+        before = self.repository.transactions_path.read_bytes()
+        code, output, errors = self.run_cli(
+            ["add"], ["2026-10-22", "expense", "식비", "1", "\ud800", ""])
+        self.assertEqual(code, 1)
+        self.assertIn("UTF-8", errors)
+        self.assertNotIn("저장되었습니다", output)
+        self.assertEqual(self.repository.transactions_path.read_bytes(), before)
+        self.assertEqual(list(self.data_dir.glob("*.tmp")), [])
 
     def test_real_process_add_then_list(self) -> None:
         command = [sys.executable, "-m", "peach_pantry", "--data-dir", str(self.data_dir)]
@@ -202,11 +212,12 @@ class InputAndFormattingTests(unittest.TestCase):
 
     def test_formatter_signs_unknown_category_and_multiline_memo(self) -> None:
         self.assertEqual(format_category("여행"), "📦 여행")
-        expense = Transaction("TX-000001", "2026-10-22", "expense", "식비", 1200, "줄1\n줄2\t끝")
+        expense = Transaction("TX-000001", "2026-10-22", "expense", "식비", 1200, "줄1\n줄2\t끝", ("태그\n줄2",))
         output = format_transaction(expense)
         self.assertIn("-1,200원", output)
         self.assertIn("🍚 식비", output)
         self.assertIn("줄1\\n줄2\\t끝", output)
+        self.assertIn("태그\\n줄2", output)
         self.assertEqual(len(output.splitlines()), 3)
         income = Transaction("TX-000002", "2026-10-22", "income", "급여", 1000)
         self.assertIn("+1,000원", format_transaction(income))

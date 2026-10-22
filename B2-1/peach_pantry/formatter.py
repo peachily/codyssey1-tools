@@ -66,13 +66,18 @@ def format_transaction(transaction: Transaction) -> str:
     """이모지 너비에 의존하지 않도록 필드를 구분자로 나누어 표시한다."""
     sign = "+" if transaction.type == "income" else "-"
     label = "수입" if transaction.type == "income" else "지출"
-    memo = transaction.memo.replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t")
-    tags = ", ".join(transaction.tags) or "없음"
+    memo = single_line(transaction.memo)
+    tags = ", ".join(single_line(tag) for tag in transaction.tags) or "없음"
     return (
         f"{transaction.date} | {transaction.id} | {label} | {sign}{transaction.amount:,}원\n"
         f"  카테고리: {format_category(transaction.category)}\n"
         f"  메모: {memo or '없음'} | 태그: {tags}"
     )
+
+
+def single_line(value: str) -> str:
+    """CSV에서 가져온 줄바꿈과 탭이 목록의 필드 구분을 깨지 않게 한다."""
+    return value.replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t")
 
 
 def print_transactions(transactions: Iterable[Transaction], *, title: str = "최근 거래",

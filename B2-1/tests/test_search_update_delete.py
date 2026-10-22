@@ -182,7 +182,7 @@ class SearchUpdateDeleteTests(unittest.TestCase):
         for command in ("update", "delete"):
             for stage in ("replace", "fsync"):
                 with self.subTest(command=command, stage=stage):
-                    with patch(f"peach_pantry.repository.os.{stage}", side_effect=OSError("failed")):
+                    with patch(f"peach_pantry.file_io.os.{stage}", side_effect=OSError("failed")):
                         inputs = ["", "", "", "2000", "", ""] if command == "update" else []
                         code, output, errors = self.run_cli([command, "--id", "TX-000001"], inputs)
                     self.assertEqual(code, 1)

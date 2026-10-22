@@ -195,7 +195,7 @@ class CategoryBudgetTests(unittest.TestCase):
         for command in commands:
             for stage in ("fsync", "replace"):
                 with self.subTest(command=command, stage=stage):
-                    with patch(f"peach_pantry.repository.os.{stage}", side_effect=OSError("failed")):
+                    with patch(f"peach_pantry.file_io.os.{stage}", side_effect=OSError("failed")):
                         code, output, errors = self.run_cli(command)
                     self.assertEqual(code, 1)
                     self.assertIn("[오류]", errors)

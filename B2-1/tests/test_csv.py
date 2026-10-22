@@ -62,7 +62,7 @@ class CsvTests(unittest.TestCase):
             ["2026-10-01", "expense", "카페", "500", "", ""],
         ], encoding="utf-8-sig")
         real_replace = os.replace
-        with patch("peach_pantry.repository.os.replace", wraps=real_replace) as replace:
+        with patch("peach_pantry.file_io.os.replace", wraps=real_replace) as replace:
             code, output, errors = self.run_cli(["import", "--from", str(self.input)])
         self.assertEqual((code, errors), (0, ""))
         self.assertIn("2건", output)
@@ -140,7 +140,7 @@ class CsvTests(unittest.TestCase):
     def test_header_only_import_is_zero_and_does_not_rewrite_data(self) -> None:
         self.write_input([])
         before = self.snapshot()
-        with patch("peach_pantry.repository.os.replace") as replace:
+        with patch("peach_pantry.file_io.os.replace") as replace:
             self.assertEqual(self.service.import_csv(self.input), 0)
         replace.assert_not_called()
         self.assertEqual(self.snapshot(), before)
@@ -150,7 +150,7 @@ class CsvTests(unittest.TestCase):
                           ["2026-10-02", "expense", "식비", "1", "", ""]])
         before = self.snapshot()
         for stage in ("fsync", "replace"):
-            with self.subTest(stage=stage), patch(f"peach_pantry.repository.os.{stage}", side_effect=OSError("failed")):
+            with self.subTest(stage=stage), patch(f"peach_pantry.file_io.os.{stage}", side_effect=OSError("failed")):
                 code, output, errors = self.run_cli(["import", "--from", str(self.input)])
                 self.assertEqual(code, 1)
                 self.assertIn("[오류]", errors)
@@ -244,7 +244,7 @@ class CsvTests(unittest.TestCase):
         self.output.write_bytes(b"existing output")
         before = self.snapshot()
         for stage in ("fsync", "replace"):
-            with self.subTest(stage=stage), patch(f"peach_pantry.csv_io.os.{stage}", side_effect=OSError("failed")):
+            with self.subTest(stage=stage), patch(f"peach_pantry.file_io.os.{stage}", side_effect=OSError("failed")):
                 code, output, errors = self.run_cli(["export", "--out", str(self.output), "--month", "2026-10"])
                 self.assertEqual(code, 1)
                 self.assertIn("[힌트]", errors)

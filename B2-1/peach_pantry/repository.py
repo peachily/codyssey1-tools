@@ -1,62 +1,21 @@
-"""제너레이터 읽기와 원자적 파일 교체를 제공하는 JSONL 저장소.
+"""3개 JSONL 파일의 모델 변환, 초기화와 고유 거래 ID 관리.
 
-거래 파일의 첫 줄은 마지막 발급 번호 메타데이터다. 거래가 모두 삭제되어도
+거래 파일 첫 줄에 마지막 발급 번호를 저장한다. 거래가 모두 삭제되어도
 이 번호를 유지한다. 동시 프로세스의 쓰기는 지원하지 않는다.
 """
 
 from dataclasses import asdict
-import json
-import os
 from pathlib import Path
-import tempfile
 from typing import Iterable, Iterator, Sequence
 
 from .errors import PantryError
+from .jsonl import read_jsonl, replace_jsonl
 from .models import Budget, Category, Transaction, transaction_number
 
 DEFAULT_CATEGORIES = (
     "식비", "카페", "교통", "쇼핑", "생활", "주거",
     "건강", "문화", "교육", "급여", "용돈", "기타",
 )
-
-
-def read_jsonl(path: Path) -> Iterator[dict]:
-    """파일을 한 줄씩 읽고 손상된 레코드의 위치를 안내한다."""
-    try:
-        with path.open("r", encoding="utf-8") as source:
-            for line_number, line in enumerate(source, 1):
-                try:
-                    record = json.loads(line)
-                    if not isinstance(record, dict):
-                        raise ValueError("객체가 아닙니다.")
-                except ValueError as exc:
-                    raise PantryError(
-                        f"{path.name}의 {line_number}번째 줄이 올바른 JSON 객체가 아닙니다.",
-                        "원본 파일을 백업한 뒤 해당 줄의 JSON 형식을 확인해 주세요.",
-                    ) from exc
-                yield record
-    except UnicodeError as exc:
-        raise PantryError(f"{path.name}을 UTF-8로 읽을 수 없습니다.",
-                          "파일을 백업한 뒤 UTF-8 인코딩인지 확인해 주세요.") from exc
-
-
-def replace_jsonl(path: Path, records: Iterable[dict]) -> None:
-    """같은 폴더의 임시 파일에 기록한 뒤 원본을 한 번에 교체한다."""
-    temporary_path = None
-    try:
-        with tempfile.NamedTemporaryFile(
-            mode="w", encoding="utf-8", newline="\n", dir=path.parent,
-            prefix=f".{path.name}.", suffix=".tmp", delete=False,
-        ) as target:
-            temporary_path = Path(target.name)
-            for record in records:
-                target.write(json.dumps(record, ensure_ascii=False, allow_nan=False) + "\n")
-            target.flush()
-            os.fsync(target.fileno())
-        os.replace(temporary_path, path)
-    finally:
-        if temporary_path is not None:
-            temporary_path.unlink(missing_ok=True)
 
 
 class PantryRepository:
@@ -80,9 +39,11 @@ class PantryRepository:
 
     @staticmethod
     def _metadata(last_id: int) -> dict:
+        """거래 파일 첫 줄에 보관할 마지막 발급 번호를 만든다."""
         return {"record_type": "metadata", "last_id": last_id}
 
     def _read_metadata(self, records: Iterator[dict]) -> int:
+        """첫 레코드의 ID 메타데이터를 검증하여 반환한다."""
         record = next(records, None)
         if (not isinstance(record, dict)
                 or set(record) != {"record_type", "last_id"}
@@ -93,9 +54,13 @@ class PantryRepository:
 
     @staticmethod
     def _invalid_record(path: Path, line_number: int) -> PantryError:
+        """손상된 레코드 위치와 해당 파일에 맞는 복구 힌트를 구성한다."""
+        hint = "파일을 백업한 뒤 필드와 값의 형식을 확인해 주세요."
+        if path.name == "transactions.jsonl":
+            hint += " 거래 파일 첫 줄에는 ID 메타데이터가 필요합니다."
         return PantryError(
             f"{path.name}의 {line_number}번째 줄에 잘못된 데이터가 있습니다.",
-            "파일을 백업한 뒤 필드와 값의 형식을 확인해 주세요. 거래 파일 첫 줄에는 ID 메타데이터가 필요합니다.",
+            hint,
         )
 
     def iter_transactions(self) -> Iterator[Transaction]:
@@ -115,6 +80,7 @@ class PantryRepository:
             records.close()
 
     def _last_id(self) -> int:
+        """거래 전체를 읽지 않고 마지막 발급 번호만 조회한다."""
         records = read_jsonl(self.transactions_path)
         try:
             return self._read_metadata(records)
@@ -128,14 +94,7 @@ class PantryRepository:
         """거래와 발급 번호를 함께 저장하여 성공한 거래에 ID를 발급한다."""
         last_id = self._last_id() + 1
         transaction = Transaction(f"TX-{last_id:06d}", date, type, category, amount, memo, tags)
-
-        def records() -> Iterator[dict]:
-            yield self._metadata(last_id)
-            for existing in self.iter_transactions():
-                yield existing.to_record()
-            yield transaction.to_record()
-
-        replace_jsonl(self.transactions_path, records())
+        self._append_transactions([transaction])
         return transaction
 
     def save_transactions(self, transactions: Iterable[Transaction]) -> None:
@@ -158,16 +117,20 @@ class PantryRepository:
         last_id = self._last_id()
         transactions = [Transaction(id=f"TX-{last_id + index:06d}", **values)
                         for index, values in enumerate(fields, 1)]
+        self._append_transactions(transactions)
+        return len(transactions)
+
+    def _append_transactions(self, transactions: Sequence[Transaction]) -> None:
+        """추가 거래와 발급 번호를 함께 반영한다. 기존 파일은 순차 복사한다."""
 
         def records() -> Iterator[dict]:
-            yield self._metadata(last_id + len(transactions))
+            yield self._metadata(transaction_number(transactions[-1].id))
             for existing in self.iter_transactions():
                 yield existing.to_record()
             for transaction in transactions:
                 yield transaction.to_record()
 
         replace_jsonl(self.transactions_path, records())
-        return len(transactions)
 
     def iter_categories(self) -> Iterator[Category]:
         """저장된 카테고리를 순차적으로 반환한다."""
