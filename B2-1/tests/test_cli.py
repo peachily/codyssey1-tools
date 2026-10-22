@@ -87,11 +87,11 @@ class CliTests(unittest.TestCase):
                 self.assertIn("[힌트]", output.getvalue())
                 self.assertNotIn("Traceback", output.getvalue())
 
-    def test_pending_command_creates_no_data(self) -> None:
+    def test_invalid_command_creates_no_data(self) -> None:
         with TemporaryDirectory() as temp, redirect_stderr(StringIO()) as output:
             data_dir = Path(temp) / "data"
-            self.assertEqual(main(["import", "--from", "input.csv", "--data-dir", str(data_dir)]), 1)
-            self.assertIn("아직 구현되지 않았습니다", output.getvalue())
+            self.assertEqual(main(["unknown", "--data-dir", str(data_dir)]), 2)
+            self.assertIn("[오류]", output.getvalue())
             self.assertFalse(data_dir.exists())
 
     def test_main_returns_dispatch_exit_code(self) -> None:

@@ -98,7 +98,9 @@ def build_parser() -> argparse.ArgumentParser:
     summary.add_argument("--month", required=True, metavar="YYYY-MM", help="요약 대상 월")
     summary.add_argument("--top", type=int, default=3, metavar="N", help="카테고리별 지출 순위 건수 (기본값: 3)")
     parsers["import"].add_argument("--from", dest="input_csv", required=True, type=Path, metavar="CSV", help="가져올 UTF-8 CSV 파일")
+    parsers["import"].epilog = "헤더: date,type,category,amount,memo,tags. 모든 행을 검증한 뒤 저장하며 검증 결과는 CSV 크기에 비례하는 메모리를 사용합니다."
     export = parsers["export"]
+    export.epilog = "날짜 조건은 필수입니다. --month와 --from/--to는 함께 사용할 수 없습니다. 날짜 경계는 포함하며 --from 또는 --to만 지정할 수도 있습니다."
     export.add_argument("--out", required=True, type=Path, metavar="CSV", help="내보낼 UTF-8 CSV 파일")
     export.add_argument("--month", metavar="YYYY-MM", help="내보낼 월 (--from/--to와 함께 사용할 수 없음)")
     add_date_range(export)
@@ -113,7 +115,7 @@ def add_date_range(parser: argparse.ArgumentParser) -> None:
 
 def dispatch(args: argparse.Namespace) -> int:
     """구현된 명령을 서비스에 연결한다."""
-    if args.command in ("add", "list", "search", "update", "delete", "category", "budget", "summary"):
+    if args.command in ("add", "list", "search", "update", "delete", "category", "budget", "summary", "import", "export"):
         if args.command == "list" and args.limit <= 0:
             raise PantryError("조회 건수가 올바르지 않습니다.",
                               "--limit에 0보다 큰 정수를 지정해 주세요.", exit_code=2)
@@ -148,12 +150,19 @@ def dispatch(args: argparse.Namespace) -> int:
         elif args.command == "budget":
             budget = service.set_budget(args.month, args.amount)
             print(f"{budget.month} 예산이 저장되었습니다. {budget.amount:,}원")
-        else:
+        elif args.command == "summary":
             print_summary(service.summary(args.month, args.top), args.top)
+        elif args.command == "import":
+            count = service.import_csv(args.input_csv)
+            print(f"CSV 가져오기가 완료되었습니다. {count}건")
+        else:
+            count = service.export_csv(args.out, month=args.month,
+                                       date_from=args.date_from, date_to=args.date_to)
+            print(f"CSV 내보내기가 완료되었습니다. {count}건")
         return 0
     raise PantryError(
-        f"'{args.command}' 기능은 아직 구현되지 않았습니다.",
-        "'--help'로 명령과 옵션을 확인해 주세요. 해당 기능은 후속 단계에서 구현됩니다.",
+        "지원하지 않는 명령입니다.",
+        "'--help'로 명령과 옵션을 확인해 주세요.",
     )
 
 

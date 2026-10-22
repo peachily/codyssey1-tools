@@ -9,7 +9,7 @@ import json
 import os
 from pathlib import Path
 import tempfile
-from typing import Iterable, Iterator
+from typing import Iterable, Iterator, Sequence
 
 from .errors import PantryError
 from .models import Budget, Category, Transaction, transaction_number
@@ -150,6 +150,24 @@ class PantryRepository:
                 yield transaction.to_record()
 
         replace_jsonl(self.transactions_path, records())
+
+    def add_transactions(self, fields: Sequence[dict]) -> int:
+        """검증된 여러 거래와 마지막 발급 번호를 한 번의 교체로 저장한다."""
+        if not fields:
+            return 0
+        last_id = self._last_id()
+        transactions = [Transaction(id=f"TX-{last_id + index:06d}", **values)
+                        for index, values in enumerate(fields, 1)]
+
+        def records() -> Iterator[dict]:
+            yield self._metadata(last_id + len(transactions))
+            for existing in self.iter_transactions():
+                yield existing.to_record()
+            for transaction in transactions:
+                yield transaction.to_record()
+
+        replace_jsonl(self.transactions_path, records())
+        return len(transactions)
 
     def iter_categories(self) -> Iterator[Category]:
         """저장된 카테고리를 순차적으로 반환한다."""

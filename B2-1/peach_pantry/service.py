@@ -1,11 +1,14 @@
 """화면 입출력과 독립적인 거래, 카테고리 및 예산 관리 규칙."""
 
 import heapq
+from calendar import monthrange
 from contextlib import closing
 from dataclasses import replace
+from pathlib import Path
 from typing import Iterator
 
 from .errors import PantryError
+from .csv_io import read_csv, write_csv
 from .models import Budget, Category, MonthlySummary, Transaction, transaction_number
 from .repository import PantryRepository
 from .sorting import latest_first
@@ -89,6 +92,50 @@ class PantryService:
             if budget.month == month:
                 budget_amount = budget.amount
         return MonthlySummary(month, income, expense, count, top_expenses, budget_amount)
+
+    def import_csv(self, path: str | Path) -> int:
+        """CSV 전체 검증 후 한 번의 파일 교체로 모든 거래를 가져온다."""
+        fields = read_csv(Path(path), set(self.category_names()))
+        return self.repository.add_transactions(fields)
+
+    def export_csv(
+        self, path: str | Path, *, month: str | None = None,
+        date_from: str | None = None, date_to: str | None = None,
+    ) -> int:
+        """필수 날짜 조건을 검증하고 거래를 순차적으로 CSV에 내보낸다."""
+        if month is not None and (date_from is not None or date_to is not None):
+            raise PantryError("월과 날짜 범위 조건은 함께 사용할 수 없습니다.",
+                              "--month 또는 --from/--to 중 하나를 선택해 주세요.")
+        if month is None and date_from is None and date_to is None:
+            raise PantryError("내보내기에 날짜 조건이 필요합니다.",
+                              "--month 또는 --from/--to로 기간을 지정해 주세요.")
+        if month is not None:
+            month = parse_month(month)
+            year, number = map(int, month.split("-"))
+            start, end = f"{month}-01", f"{month}-{monthrange(year, number)[1]:02d}"
+        else:
+            start = parse_date(date_from) if date_from is not None else None
+            end = parse_date(date_to) if date_to is not None else None
+        if start is not None and end is not None and start > end:
+            raise PantryError("내보내기 시작일이 종료일보다 늦습니다.",
+                              "--from이 --to보다 이르거나 같도록 입력해 주세요.")
+        destination = Path(path)
+        for protected in (self.repository.transactions_path, self.repository.categories_path,
+                          self.repository.budgets_path):
+            if (destination.resolve() == protected.resolve()
+                    or (destination.exists() and protected.exists() and destination.samefile(protected))):
+                raise PantryError("데이터 저장소 파일에는 CSV를 덮어쓸 수 없습니다.",
+                                  "--out에 JSONL 저장소와 다른 CSV 경로를 지정해 주세요.")
+
+        def matches() -> Iterator[Transaction]:
+            for transaction in self.repository.iter_transactions():
+                if start is not None and transaction.date < start:
+                    continue
+                if end is not None and transaction.date > end:
+                    continue
+                yield transaction
+
+        return write_csv(destination, matches())
 
     def add_transaction(
         self, *, date: str, type: str, category: str, amount: int,
