@@ -3,7 +3,7 @@
 import sys
 from typing import Iterable, TextIO
 
-from .models import Transaction
+from .models import MonthlySummary, Transaction
 
 CATEGORY_EMOJIS = {
     "식비": "🍚", "카페": "☕", "교통": "🚌", "쇼핑": "🛍️",
@@ -39,6 +39,27 @@ def print_categories(names: Iterable[str]) -> None:
         print("등록된 카테고리가 없습니다. category add로 등록해 주세요.")
     else:
         print(f"\n총 {count}개")
+
+
+def print_summary(summary: MonthlySummary, top: int = 3) -> None:
+    """월별 합계, 지출 순위와 설정된 예산의 사용률을 출력한다."""
+    print(format_title(f"{summary.month} 월별 요약"))
+    if summary.transaction_count == 0:
+        print("\n해당 월에 등록된 거래가 없습니다.")
+    print(f"\n총수입: +{summary.income:,}원")
+    print(f"총지출: -{summary.expense:,}원")
+    print(f"잔액: {summary.balance:+,}원")
+    print(f"\n카테고리별 지출 TOP {top}")
+    if summary.top_expenses:
+        for rank, (category, amount) in enumerate(summary.top_expenses, 1):
+            print(f"  {rank}. {format_category(category)} | {amount:,}원")
+    else:
+        print("  해당 월의 지출이 없습니다.")
+    if summary.budget is not None:
+        print(f"\n월 예산: {summary.budget:,}원")
+        print(f"예산 사용률: {summary.budget_usage:.1f}%")
+        if summary.budget_exceeded:
+            print(f"[경고] 월 예산을 {summary.expense - summary.budget:,}원 초과했습니다.")
 
 
 def format_transaction(transaction: Transaction) -> str:

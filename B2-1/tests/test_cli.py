@@ -90,7 +90,7 @@ class CliTests(unittest.TestCase):
     def test_pending_command_creates_no_data(self) -> None:
         with TemporaryDirectory() as temp, redirect_stderr(StringIO()) as output:
             data_dir = Path(temp) / "data"
-            self.assertEqual(main(["summary", "--month", "2026-10", "--data-dir", str(data_dir)]), 1)
+            self.assertEqual(main(["import", "--from", "input.csv", "--data-dir", str(data_dir)]), 1)
             self.assertIn("아직 구현되지 않았습니다", output.getvalue())
             self.assertFalse(data_dir.exists())
 

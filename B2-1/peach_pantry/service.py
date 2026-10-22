@@ -6,7 +6,7 @@ from dataclasses import replace
 from typing import Iterator
 
 from .errors import PantryError
-from .models import Budget, Category, Transaction, transaction_number
+from .models import Budget, Category, MonthlySummary, Transaction, transaction_number
 from .repository import PantryRepository
 from .sorting import latest_first
 from .validators import check_amount, parse_category_name, parse_date, parse_month, parse_type
@@ -62,6 +62,33 @@ class PantryService:
                    if existing.month != budget.month]
         self.repository.save_budgets([*budgets, budget])
         return budget
+
+    def summary(self, month: str, top: int = 3) -> MonthlySummary:
+        """월별 합계를 순차 집계한다. 거래 대신 카테고리별 합계만 유지한다."""
+        month = parse_month(month)
+        if type(top) is not int or top <= 0:
+            raise PantryError("지출 순위 건수가 올바르지 않습니다.",
+                              "--top에 0보다 큰 정수를 지정해 주세요.", exit_code=2)
+        income = expense = count = 0
+        category_expenses: dict[str, int] = {}
+        for transaction in self.repository.iter_transactions():
+            if transaction.date[:7] != month:
+                continue
+            count += 1
+            if transaction.type == "income":
+                income += transaction.amount
+            else:
+                expense += transaction.amount
+                category_expenses[transaction.category] = (
+                    category_expenses.get(transaction.category, 0) + transaction.amount
+                )
+        top_expenses = tuple(sorted(category_expenses.items(),
+                                    key=lambda item: (-item[1], item[0]))[:top])
+        budget_amount = None
+        for budget in self.repository.iter_budgets():
+            if budget.month == month:
+                budget_amount = budget.amount
+        return MonthlySummary(month, income, expense, count, top_expenses, budget_amount)
 
     def add_transaction(
         self, *, date: str, type: str, category: str, amount: int,

@@ -2,6 +2,7 @@
 
 from dataclasses import asdict, dataclass
 from datetime import date
+from decimal import Decimal
 import re
 
 
@@ -97,3 +98,32 @@ class Budget:
     def __post_init__(self) -> None:
         validate_month(self.month)
         validate_amount(self.amount)
+
+
+@dataclass(frozen=True)
+class MonthlySummary:
+    """파일에 저장하지 않는 월별 집계 결과."""
+
+    month: str
+    income: int
+    expense: int
+    transaction_count: int
+    top_expenses: tuple[tuple[str, int], ...]
+    budget: int | None
+
+    @property
+    def balance(self) -> int:
+        """해당 월의 총수입에서 총지출을 뺀 금액."""
+        return self.income - self.expense
+
+    @property
+    def budget_usage(self) -> Decimal | None:
+        """수입과 무관한 지출 기준 예산 사용률 (%)."""
+        if self.budget is None:
+            return None
+        return Decimal(self.expense) / Decimal(self.budget) * 100
+
+    @property
+    def budget_exceeded(self) -> bool:
+        """반올림한 사용률 대신 실제 금액으로 초과 여부를 판정한다."""
+        return self.budget is not None and self.expense > self.budget

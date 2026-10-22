@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Callable, Sequence, TypeVar
 
 from .errors import PantryError, handle_errors
-from .formatter import format_category, format_title, print_categories, print_error, print_transactions
+from .formatter import format_category, format_title, print_categories, print_error, print_summary, print_transactions
 from .repository import PantryRepository
 from .service import PantryService
 from .validators import parse_amount, parse_date, parse_tags, parse_type
@@ -113,7 +113,7 @@ def add_date_range(parser: argparse.ArgumentParser) -> None:
 
 def dispatch(args: argparse.Namespace) -> int:
     """구현된 명령을 서비스에 연결한다."""
-    if args.command in ("add", "list", "search", "update", "delete", "category", "budget"):
+    if args.command in ("add", "list", "search", "update", "delete", "category", "budget", "summary"):
         if args.command == "list" and args.limit <= 0:
             raise PantryError("조회 건수가 올바르지 않습니다.",
                               "--limit에 0보다 큰 정수를 지정해 주세요.", exit_code=2)
@@ -145,9 +145,11 @@ def dispatch(args: argparse.Namespace) -> int:
             else:
                 service.remove_category(args.name)
                 print(f"카테고리가 삭제되었습니다. {format_category(args.name.strip())}")
-        else:
+        elif args.command == "budget":
             budget = service.set_budget(args.month, args.amount)
             print(f"{budget.month} 예산이 저장되었습니다. {budget.amount:,}원")
+        else:
+            print_summary(service.summary(args.month, args.top), args.top)
         return 0
     raise PantryError(
         f"'{args.command}' 기능은 아직 구현되지 않았습니다.",
