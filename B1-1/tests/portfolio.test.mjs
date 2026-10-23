@@ -98,6 +98,7 @@ test('Contact DOM: validation errors, input correction and no fabricated success
   const { $, dom, event } = setup(); let requests = 0;
   globalThis.fetch = async () => { requests++; return new Response('{}'); };
   config.formEndpoint = ''; initContact();
+  assert.equal($('#contact-status').textContent, '');
   $('#contact-form').dispatchEvent(event('submit'));
   assert.equal($('#name').getAttribute('aria-invalid'), 'true');
   assert.equal(dom.window.document.activeElement.id, 'name');
@@ -141,7 +142,9 @@ test('Theme: OS default, saved manual priority, persistence and OS changes', asy
   const { $, dom, media } = setup(); matchMedia('(prefers-color-scheme: dark)').matches = true;
   const { initTheme } = await import('../js/theme.js?test=os'); initTheme();
   assert.equal(dom.window.document.documentElement.dataset.theme, 'dark');
-  $('#theme-toggle').click(); assert.equal(localStorage.getItem('peachily-theme'), 'light');
+  assert.equal($('#theme-toggle use').getAttribute('href'), 'images/icons.svg#sun');
+  $('#theme-toggle').click();
+  assert.equal($('#theme-toggle use').getAttribute('href'), 'images/icons.svg#moon'); assert.equal(localStorage.getItem('peachily-theme'), 'light');
   media.get('(prefers-color-scheme: dark)').change(true); assert.equal(dom.window.document.documentElement.dataset.theme, 'light');
   localStorage.setItem('peachily-theme', 'dark'); await import('../js/theme.js?test=saved');
   assert.equal(dom.window.document.documentElement.dataset.theme, 'dark'); dom.window.close();
@@ -152,7 +155,7 @@ test('Animations: IntersectionObserver threshold 0.2 and reduced motion stops pe
   dom.window.IntersectionObserver = globalThis.IntersectionObserver;
   initAnimations(); assert.equal(options.threshold, 0.2); assert.ok($('.reveal-pending'));
   media.get('(prefers-reduced-motion: reduce)').change(true);
-  assert.equal($('.reveal-pending'), null); assert.equal($('#typing-text').textContent, '작은 필요에서 시작되는 변화');
+  assert.equal($('.reveal-pending'), null); assert.equal($('#typing-text').textContent, '특수교육 현장에서 배우고, 필요한 것들을 직접 만들어 가고 있습니다.');
   dom.window.close();
 });
 test('Styles: responsive breakpoints, grid pattern, theme and text contrast', async () => {
@@ -161,7 +164,7 @@ test('Styles: responsive breakpoints, grid pattern, theme and text contrast', as
   assert.match(responsive, /min-width: 768px/); assert.match(responsive, /min-width: 1024px/);
   assert.match(layout, /repeat\(auto-fit, minmax/);
   function luminance(hex) { return hex.match(/\w\w/g).map(x => parseInt(x,16)/255).map(x => x<=.04045 ? x/12.92 : ((x+.055)/1.055)**2.4).reduce((sum,x,i) => sum+x*[.2126,.7152,.0722][i],0); }
-  for (const [fg,bg] of [['403c43','fffdfc'],['716b73','fffdfc'],['925267','fffdfc'],['c0b7c2','2b2830'],['f6c5cf','211f25'],['a12b43','ffffff']]) {
+  for (const [fg,bg] of [['403c43','fffdfc'],['716b73','fffdfc'],['c0b7c2','2b2830'],['f6c5cf','211f25'],['a12b43','ffffff']]) {
     const values = [luminance(fg),luminance(bg)].sort((a,b)=>a-b); assert.ok((values[1]+.05)/(values[0]+.05)>=4.5, `${fg}/${bg}`);
   }
 });

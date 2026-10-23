@@ -30,7 +30,7 @@ export function initAnimations() {
     function type() {
       position += 1;
       typing.textContent = sentence.slice(0, position);
-      if (position < sentence.length) timer = setTimeout(type, 85);
+      if (position < sentence.length) timer = setTimeout(type, 30);
       else typing.classList.remove('typing');
     }
     timer = setTimeout(type, 350);

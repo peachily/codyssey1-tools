@@ -16,7 +16,7 @@ export function initContact() {
   const status = document.querySelector('#contact-status');
   const button = form.querySelector('[type="submit"]');
   const fields = [...form.querySelectorAll('input, textarea')];
-  const state = { phase: 'idle', errors: {}, message: isFormEndpoint(config.formEndpoint) ? '' : '현재 폼 전송을 준비 중입니다. 위 이메일 주소로 직접 연락해 주세요.' };
+  const state = { phase: 'idle', errors: {}, message: '' };
   function render() {
     fields.forEach(field => {
       const error = state.errors[field.name] || '';
@@ -46,7 +46,7 @@ export function initContact() {
       state.phase = 'error'; state.message = '입력 내용을 확인해 주세요.'; render(); invalid.focus(); return;
     }
     if (!isFormEndpoint(config.formEndpoint)) {
-      state.phase = 'error'; state.message = '아직 폼 전송이 연결되지 않았습니다. peachily1108@gmail.com으로 직접 연락해 주세요. 메시지는 전송되지 않았습니다.'; render(); return;
+      state.phase = 'error'; state.message = '메시지가 전송되지 않았습니다. 잠시 후 다시 시도해 주세요.'; render(); return;
     }
     const body = Object.fromEntries(fields.map(field => [field.name, field.value.trim()]));
     state.phase = 'sending'; state.message = '메시지를 보내고 있습니다…'; render();
@@ -55,7 +55,7 @@ export function initContact() {
     try {
       const response = await fetch(config.formEndpoint, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: controller.signal });
       if (!response.ok) throw new Error('send-failed');
-      state.phase = 'success'; state.message = '메시지가 전송되었습니다. 이야기 나눠 주셔서 감사합니다!';
+      state.phase = 'success'; state.message = '메시지가 전송되었습니다.';
       state.errors = {}; form.reset();
     } catch (error) {
       state.phase = 'error'; state.message = error.name === 'AbortError' ? '전송 응답을 확인하지 못했습니다. 중복 전송을 피하려면 잠시 후 확인하거나 이메일로 연락해 주세요.' : '전송하지 못했습니다. 입력 내용은 보존됩니다. 잠시 후 다시 시도하거나 이메일로 연락해 주세요.';

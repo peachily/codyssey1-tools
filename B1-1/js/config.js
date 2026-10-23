@@ -2,8 +2,8 @@
 export const config = {
   githubUser: 'peachily',
   formEndpoint: '', // https://formspree.io/f/<your verified public form ID>
-  youtubeUrl: '',
-  blogUrl: '',
+  youtubeUrl: 'https://www.youtube.com/@peachily_log',
+  blogUrl: 'https://peachily.tistory.com/',
 };
 export const categories = { education: '교육용', school: '학교 업무용', development: '개발 프로젝트' };
 // Editorial metadata: selection/order/title/category/description and verified demo URL.
