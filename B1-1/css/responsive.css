@@ -27,3 +27,10 @@
   .contact-layout { grid-template-columns: 1fr 1fr; gap: 100px; }
   .contact-form { padding: 32px; }
 }
+/* Allow grid children and translated long labels to shrink at narrow widths. */
+.about-layout > *, .contact-layout > *, .skills-grid > *, .projects-grid > * { min-width: 0; }
+@media (max-width: 359px) {
+  .hero h1 { font-size: 2.1rem; }
+  .category-filters button { padding-inline: 12px; }
+  .footer-inner { gap: 12px; }
+}

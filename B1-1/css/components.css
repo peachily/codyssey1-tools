@@ -28,3 +28,9 @@ textarea { resize: vertical; min-height: 150px; }
 .reveal-pending { opacity: 0; transform: translateY(18px); }
 .typing::after { content: ''; display: inline-block; height: 1em; border-right: 1px solid currentColor; margin-left: 3px; vertical-align: middle; }
 @media (prefers-reduced-motion: reduce) { .reveal-pending { opacity: 1; transform: none; } }
+/* Keep a useful focus target after anchor navigation without a large section outline. */
+section[tabindex="-1"]:focus, main[tabindex="-1"]:focus, body[tabindex="-1"]:focus { outline: none; }
+@media (forced-colors: active) {
+  .button, .icon-button, .category-filters button { border: 1px solid ButtonText; }
+  .category-filters button[aria-pressed="true"] { outline: 2px solid Highlight; }
+}
