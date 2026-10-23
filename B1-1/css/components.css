@@ -24,3 +24,7 @@ textarea { resize: vertical; min-height: 150px; }
 .status { color: var(--muted); font-size: var(--text-sm); }
 .status[data-state="error"] { color: var(--error); }
 .back-to-top { position: fixed; right: 20px; bottom: 20px; z-index: 10; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); }
+[data-reveal] { transition: opacity 600ms ease, transform 600ms ease; }
+.reveal-pending { opacity: 0; transform: translateY(18px); }
+.typing::after { content: ''; display: inline-block; height: 1em; border-right: 1px solid currentColor; margin-left: 3px; vertical-align: middle; }
+@media (prefers-reduced-motion: reduce) { .reveal-pending { opacity: 1; transform: none; } }
