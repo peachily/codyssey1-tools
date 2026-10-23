@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFile, access } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
-import { selectProjects, filterProjects, fetchRepositories, initProjects, safeUrl } from '../js/projects.js';
+import { selectProjects, filterProjects, fetchRepositories, fetchProjectSources, initProjects, safeUrl } from '../js/projects.js';
 import { validateField, isFormEndpoint, initContact } from '../js/contact.js';
 import { config } from '../js/config.js';
 import { initSkills, createTechnologyBadge } from '../js/technologies.js';
@@ -31,6 +31,20 @@ const fixture = [
   pushed_at: `2026-09-${String(index + 1).padStart(2, '0')}T00:00:00Z`,
   private: false, owner: { login: 'peachily' }, html_url: `https://github.com/peachily/${name}`,
 }));
+const teamFixture = [
+  ['CodysseyTabula', 'Eduform', 'Python', '2025-11-23T20:03:49Z'],
+  ['FRONTENDBOOTCAMP-12th', 'Enter-8ollow', 'JavaScript', '2024-12-09T08:39:53Z'],
+  ['FRONTENDBOOTCAMP-12th', '2gether-kongtteok', 'TypeScript', '2025-02-24T11:21:26Z'],
+].map(([owner, name, language, created_at]) => ({
+  name, language, created_at, private: false, owner: { login: owner },
+  html_url: `https://github.com/${owner}/${name}`,
+  updated_at: '2026-10-23T00:00:00Z', pushed_at: '2026-10-23T00:00:00Z',
+}));
+async function successfulSources(url) {
+  if (url.includes('/users/')) return new Response(JSON.stringify(fixture));
+  const repo = teamFixture.find(item => url.endsWith(`/repos/${item.owner.login}/${item.name}`));
+  return new Response(JSON.stringify(repo || {}), { status: repo ? 200 : 404 });
+}
 const originalFormEndpoint = config.formEndpoint;
 const flush = () => new Promise(resolve => setImmediate(resolve));
 function setup() {
@@ -89,8 +103,8 @@ test('Skills: three groups, 24 technologies, local logos and text survives image
 });
 test('Brand assets retain upstream bytes and provenance, with the official OpenAI asset', async () => {
   const manifest = JSON.parse(await readFile(new URL('../assets/licenses/sources.json', import.meta.url), 'utf8'));
-  assert.equal(manifest.assets.length, 24);
-  assert.equal(new Set(manifest.assets.map(asset => asset.file)).size, 24);
+  assert.equal(manifest.assets.length, 26);
+  assert.equal(new Set(manifest.assets.map(asset => asset.file)).size, 26);
   for (const asset of manifest.assets) {
     const data = await readFile(new URL(`../assets/${asset.file}`, import.meta.url));
     assert.equal(createHash('sha256').update(data).digest('hex'), asset.sha256);
@@ -124,6 +138,57 @@ test('Category AND primary-language filters preserve creation-date order and han
   const filtered = filterProjects(projects, 'development', 'Python');
   assert.deepEqual(filtered.map(project => project.repo), ['codyssey1-termproject', 'codyssey1-tools', 'codyssey1-selection', 'codyssey0-python']);
 });
+test('Personal and organization projects merge into 14 cards ordered strictly by creation date', () => {
+  const projects = selectProjects([...teamFixture, ...fixture.toReversed()]);
+  assert.equal(projects.length, 14);
+  assert.equal(projects.filter(project => project.team).length, 4);
+  assert.equal(projects[0].repo, 'school06-snack-market');
+  assert.equal(projects.at(-1).repo, 'Enter-8ollow');
+  const educationPlan = projects.find(project => project.repo === 'Eduform');
+  assert.equal(educationPlan.category, 'school');
+  assert.equal(educationPlan.owner, 'CodysseyTabula');
+  assert.match(projects.find(project => project.repo === 'Enter-8ollow').description, /따라 만들.*클론 코딩/);
+  assert.equal(selectProjects([{ ...teamFixture[0], owner: { login: 'peachily' } }]).length, 0);
+  for (const project of projects) assert.ok(project.technologies.length >= 2 && project.technologies.length <= 4);
+  for (const category of ['all', 'school', 'development']) {
+    for (const language of ['all', 'Python', 'TypeScript']) {
+      const filtered = filterProjects(projects, category, language);
+      for (let i = 1; i < filtered.length; i++) assert.ok(Date.parse(filtered[i - 1].createdAt) >= Date.parse(filtered[i].createdAt));
+    }
+  }
+});
+test('Organization failures preserve personal repositories, and personal failures preserve team repositories', async () => {
+  const partial = await fetchProjectSources(async url => url.endsWith('/Eduform') ? new Response('{}', { status: 403 }) : successfulSources(url));
+  assert.equal(selectProjects(partial.repos).length, 13);
+  assert.equal(partial.failures[0].source, 'Eduform');
+  assert.match(partial.failures[0].message, /제한/);
+  const personalFailure = await fetchProjectSources(async url => url.includes('/users/') ? new Response('{}', { status: 500 }) : successfulSources(url));
+  assert.equal(selectProjects(personalFailure.repos).length, 3);
+  assert.equal(personalFailure.failures[0].source, '개인 저장소');
+  await assert.rejects(fetchProjectSources(async () => new Response('{}', { status: 500 })), /불러오지 못했습니다/);
+  const malformed = await fetchProjectSources(async url => url.includes('/users/') ? successfulSources(url) : new Response('[]'));
+  assert.equal(selectProjects(malformed.repos).length, 11);
+  assert.equal(malformed.failures.length, 3);
+});
+test('Partial projects keep cards visible, show retry, and recover without losing filters', async () => {
+  const { $, dom, event } = setup();
+  globalThis.fetch = async url => url.endsWith('/Eduform') ? new Response('{}', { status: 404 }) : successfulSources(url);
+  initProjects(); await flush();
+  assert.equal(dom.window.document.querySelectorAll('.project-card').length, 13);
+  assert.equal($('#project-status').dataset.state, 'partial');
+  assert.match($('#project-status').textContent, /Eduform/);
+  assert.equal($('#project-retry').hidden, false);
+  $('[data-category="school"]').click();
+  $('#language-filter').value = 'Python'; $('#language-filter').dispatchEvent(event('change'));
+  globalThis.fetch = successfulSources;
+  $('#project-retry').click(); await flush();
+  assert.equal(dom.window.document.querySelectorAll('.project-card').length, 2);
+  assert.equal($('[data-category="school"]').getAttribute('aria-pressed'), 'true');
+  assert.equal($('#language-filter').value, 'Python');
+  assert.equal($('#project-retry').hidden, true);
+  assert.equal($('#project-status').dataset.state, 'success');
+  dom.window.close();
+});
 test('Only HTTPS links and the intended Formspree endpoint are accepted', () => {
   for (const url of ['', 'javascript:alert(1)', 'http://example.com']) assert.equal(safeUrl(url), null);
   assert.ok(isFormEndpoint('https://formspree.io/f/abc123'));
@@ -147,35 +212,83 @@ test('Projects DOM: loading → error → retry → success → combined filter 
   initProjects();
   assert.equal($('#project-list').getAttribute('aria-busy'), 'true');
   await flush(); assert.equal($('#project-retry').hidden, false); assert.match($('#project-status').textContent, /제한/);
-  globalThis.fetch = async () => new Response(JSON.stringify(fixture));
+  globalThis.fetch = successfulSources;
   $('#project-retry').click(); await flush();
-  assert.equal(dom.window.document.querySelectorAll('.project-card').length, 11);
+  assert.equal(dom.window.document.querySelectorAll('.project-card').length, 14);
   $('[data-category="education"]').click();
   $('#language-filter').value = 'Python'; $('#language-filter').dispatchEvent(event('change'));
   assert.equal(dom.window.document.querySelectorAll('.project-card').length, 0);
   assert.match($('#project-status').textContent, /조건에 맞는/);
-  $('[data-category="school"]').click(); assert.equal(dom.window.document.querySelectorAll('.project-card').length, 1);
+  $('[data-category="school"]').click(); assert.equal(dom.window.document.querySelectorAll('.project-card').length, 2);
   dom.window.close();
 });
 test('Project cards provide one full-card keyboard link, a top arrow and verified technology tags', async () => {
   const { $, dom } = setup();
-  globalThis.fetch = async () => new Response(JSON.stringify(fixture));
+  globalThis.fetch = successfulSources;
   initProjects(); await flush();
   for (const card of dom.window.document.querySelectorAll('.project-card')) {
     const links = card.querySelectorAll('a');
     assert.equal(links.length, 1);
     const link = links[0];
-    assert.ok(link.href.startsWith('https://github.com/peachily/'));
+    assert.ok(link.href.startsWith('https://github.com/'));
+    const isTeam = !link.href.startsWith('https://github.com/peachily/') || link.href.endsWith('/codyssey1-termproject');
+    assert.equal(Boolean(card.querySelector('.project-team')), isTeam);
+    assert.equal(card.querySelectorAll('.project-separator').length, isTeam ? 1 : 0);
+    if (isTeam) assert.equal(card.querySelector('.project-separator').getAttribute('aria-hidden'), 'true');
     assert.equal(link.tabIndex, 0);
     assert.ok(card.querySelector('.project-arrow use'));
     assert.equal(link.getAttribute('aria-labelledby'), card.querySelector('h3').id);
     assert.ok(card.querySelector('.badge').textContent);
-    assert.equal(card.querySelector('img'), null);
+    const badges = [...card.querySelectorAll('.technology-badge')];
+    assert.ok(badges.length >= 2 && badges.length <= 4);
+    badges.forEach(badge => {
+      const logo = badge.querySelector('img');
+      if (logo) { assert.equal(logo.width, 14); assert.equal(logo.height, 14); }
+    });
   }
   const pet = $('[href="https://github.com/peachily/school04-pet-simulator"]');
   assert.ok([...pet.querySelectorAll('.badge')].some(badge => badge.textContent === 'React'));
   const market = $('[href="https://github.com/peachily/school06-snack-market"]');
   assert.ok([...market.querySelectorAll('.badge')].some(badge => badge.textContent === 'TypeScript'));
+  dom.window.close();
+});
+test('Skills and Projects share canonical brand names, paths and fallback behavior', async () => {
+  const { $, dom, event } = setup();
+  initSkills();
+  globalThis.fetch = successfulSources;
+  initProjects(); await flush();
+  const skillReact = $('#skills [data-technology="React"] img');
+  const projectReact = $('#projects [data-technology="React"] img');
+  assert.equal(skillReact.getAttribute('src'), projectReact.getAttribute('src'));
+  assert.equal(skillReact.width, 18); assert.equal(projectReact.width, 14);
+  assert.equal(createTechnologyBadge('HTML').textContent, 'HTML5');
+  assert.equal(createTechnologyBadge('CSS').textContent, 'CSS3');
+  const unknown = createTechnologyBadge('XML', { compact: true });
+  assert.equal(unknown.textContent, 'XML'); assert.equal(unknown.querySelector('img'), null);
+  assert.equal($('#skills [data-technology="REST API"]'), null);
+  projectReact.dispatchEvent(event('error'));
+  assert.equal(projectReact.parentElement.textContent, 'React');
+  for (const image of dom.window.document.querySelectorAll('.technology-logo')) {
+    await access(new URL(`../${image.getAttribute('src')}`, import.meta.url));
+  }
+  dom.window.close();
+});
+test('KKAMURUK is a development team project while still using the personal repository source', async () => {
+  const { $, dom } = setup();
+  const calls = [];
+  const data = await fetchProjectSources(async url => { calls.push(url); return successfulSources(url); });
+  assert.equal(data.failures.length, 0);
+  assert.equal(calls.length, 4); // Personal pagination page + the same three organization sources.
+  assert.equal(calls.filter(url => url.includes('/users/peachily/repos')).length, 1);
+  assert.equal(calls.some(url => url.includes('/repos/undefined/')), false);
+  const project = selectProjects(data.repos).find(item => item.repo === 'codyssey1-termproject');
+  assert.equal(project.team, true); assert.equal(project.category, 'development');
+  globalThis.fetch = successfulSources;
+  initProjects(); await flush();
+  const card = $('[href="https://github.com/peachily/codyssey1-termproject"]');
+  assert.equal(card.querySelector('.project-category').textContent, '개발 프로젝트');
+  assert.equal(card.querySelector('.project-team').textContent, 'Team Project');
+  assert.equal(card.querySelector('.project-separator').textContent, '/');
   dom.window.close();
 });
 test('Contact validation: whitespace, malformed email and message boundaries', () => {

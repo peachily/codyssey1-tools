@@ -146,6 +146,18 @@
       "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/c71c69e3a27e4436936b831c72643e6513b9f49b/icons/pocketbase.svg",
       "sha256": "05f0301c19991164f139615b16d5192d2ab85a718d3aa877a064be3bc14fa96c",
       "license": "CC0-1.0 (Simple Icons); brand rights remain with PocketBase"
+    },
+    {
+      "file": "icons/technologies/flask.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/flask/flask-original.svg",
+      "sha256": "7a27bb8cb739a080c285066c16c75828bc2eca4d76fa06eff76d556e0274a9d7",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/sqlalchemy.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/sqlalchemy/sqlalchemy-original.svg",
+      "sha256": "f7cd6f77f031d112250e3fff789a616d5fdd9a7be95856cf3adf1c9d7e30882a",
+      "license": "MIT (Devicon); brand rights remain with the owner"
     }
   ],
   "simpleIconsRevision": "c71c69e3a27e4436936b831c72643e6513b9f49b"

@@ -16,7 +16,7 @@ HTML5 / CSS3 / Vanilla JavaScript (ES Modules). 프레임워크, 빌드 도구, 
 B1-1/
 ├── index.html
 ├── css/                 # 토큰, 기본, 공통 UI, 레이아웃, 반응형
-├── js/                  # main, config, navigation, theme, projects, animations, contact
+├── js/                  # 기능별 모듈과 공통 기술 배지 매핑
 ├── assets/              # 이미지, UI·브랜드 아이콘, 출처 및 라이선스
 ├── tests/               # DOM/로직 자동 검증 (실행에 불필요)
 ├── docs/                # 배포, 콘텐츠 근거, 체크리스트, 캡처 안내
@@ -37,12 +37,13 @@ http://localhost:8000/B1-1/ 접속. ES Modules 사용으로 `file://` 직접 열
 ## 주요 기능
 
 - Hero / About / Skills / Projects / Contact / Footer와 반응형 모바일 메뉴
-- Skills 3개 그룹·24개 기술 배지, Devicon 및 공식 OpenAI 로고, 데스크톱 2열·모바일 1열
+- Skills 3개 그룹·24개 기술 배지, Devicon·Simple Icons 및 공식 OpenAI 로고, 데스크톱 2열·모바일 1열
 - Sticky Header(60px), 현재 섹션 표시, 부드러운 앵커 이동, Back-to-top(300px)
 - Light/Dark 전환·localStorage 저장·OS 테마 감지·사용자 선택 우선
 - IntersectionObserver(threshold 0.2) 스크롤 등장, Hero 제목 타이핑 후 소개 문장 등장, 모션 감소 지원
-- 공개 GitHub 저장소 비동기 조회, 선정한 공개 프로젝트 11개, 생성일 최신순 정렬, 카테고리+주 언어 복합 필터
-- API 로딩/오류/빈 결과/재시도, 403·429 제한·타임아웃 처리
+- Skills·Projects 공유 로고 매핑과 기술 배지, Projects 14px 로고
+- 공개 GitHub 저장소 비동기 조회, 선정한 공개 프로젝트 14개(개인 계정 11·조직 3), 생성일 최신순 정렬, 카테고리+주 언어 복합 필터
+- API 로딩/오류/빈 결과/재시도, 403·429 제한·타임아웃 처리, 조직 API 부분 실패 시 성공 카드 유지
 - Contact 필드별 검증·전송 상태·중복 제출 방지, 사용자 제공 Formspree endpoint로 POST
 - 키보드 포커스, ARIA 상태, skip link, SVG 재사용, 외부 링크 보호
 
@@ -62,7 +63,7 @@ http://localhost:8000/B1-1/ 접속. ES Modules 사용으로 `file://` 직접 열
 
 ## 자동 검증
 
-모든 JS 문법 검사, DOM/로직 **18개 테스트 통과**. 실제 GitHub API 11개 프로젝트 매칭·생성일 정렬과 로컬 HTTP 200 확인. 실제 레이아웃과 이메일 수신은 미검증입니다.
+모든 JS 문법 검사, DOM/로직 **23개 테스트 통과**. 실제 GitHub API 14개 프로젝트 매칭·생성일 정렬과 로컬 HTTP 200 확인. 실제 레이아웃과 이메일 수신은 미검증입니다.
 
 사이트 실행에는 테스트 도구가 필요 없습니다. 재검증 시 Node.js 22.13 이상과 별도 임시 경로의 jsdom이 필요합니다:
 

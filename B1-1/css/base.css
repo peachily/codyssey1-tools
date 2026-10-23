@@ -10,6 +10,8 @@ button, select { cursor: pointer; }
 button { border: 0; }
 img { display: block; max-width: 100%; }
 button, a { touch-action: manipulation; }
+/* Suppress pointer-only browser rings; preserve a single keyboard focus ring. */
+:where(a[href], button, input, textarea, select, [tabindex]):focus:not(:focus-visible) { outline: none; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 5px; }
 [hidden] { display: none !important; }
 ::selection { background: var(--peach); color: #403c43; }
