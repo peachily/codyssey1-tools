@@ -1,0 +1,24 @@
+:root {
+  color-scheme: light;
+  --peach: #f6c5cf; --cream: #fbe5ca; --sky: #d4e9f7; --lime: #e2eecf;
+  --lavender: #e7dff5; --blush: #f9e4e6;
+  --bg: #fffdfc; --surface: #fff; --text: #403c43; --muted: #716b73;
+  --border: #ebe7e9; --accent: #925267; --soft: #f8f5f3; --error: #a12b43;
+  --header-bg: #fffdfcf5; --focus: #89506f;
+  --font: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --text-sm: .85rem; --text-base: 1rem; --text-lg: 1.125rem;
+  --space-1: .5rem; --space-2: 1rem; --space-3: 1.5rem; --space-4: 2rem;
+  --space-5: 3rem; --space-6: 5rem; --space-7: 7rem;
+  --radius-sm: .75rem; --radius: 1.5rem; --radius-pill: 99rem;
+  --shadow: 0 12px 35px #403c4308; --transition: 180ms ease;
+  --content: 1120px; --header-height: 80px;
+  /* Mobile first breakpoints: 768px / 1024px (responsive.css).
+     CSS variables cannot be used in native media query conditions. */
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #211f25; --surface: #2b2830; --text: #f3edf2; --muted: #c0b7c2;
+  --border: #45404b; --accent: #f6c5cf; --soft: #302b33; --error: #ffafbb;
+  --header-bg: #211f25f5; --focus: #f6c5cf;
+  --shadow: 0 12px 35px #0002;
+}

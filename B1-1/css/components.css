@@ -1,0 +1,26 @@
+.wordmark { font-size: 1.6rem; font-weight: 800; letter-spacing: -.07em; text-decoration: none; }
+.wordmark span { color: var(--accent); }
+.icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.icon-button { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: transparent; text-decoration: none; }
+.icon-button:hover { background: var(--soft); }
+.button { display: inline-flex; justify-content: center; align-items: center; gap: 12px; min-height: 48px; padding: 12px 22px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: 650; text-decoration: none; transition: transform var(--transition), background var(--transition); }
+.button:hover { transform: translateY(-2px); background: var(--soft); }
+.button-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+.button-primary:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+button:disabled { opacity: .6; cursor: wait; transform: none; }
+.eyebrow { font-size: .7rem; font-weight: 750; letter-spacing: .18em; color: var(--accent); }
+.section-heading { margin-bottom: var(--space-5); }
+.section-heading h2 { margin-top: 8px; font-size: clamp(2rem, 4vw, 2.8rem); }
+.section-heading p:last-child { margin-top: 14px; color: var(--muted); }
+.badge { display: inline-block; padding: 4px 11px; border: 1px solid var(--border); border-radius: var(--radius-pill); font-size: .75rem; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: var(--text-sm); font-weight: 650; }
+input, textarea, select { min-height: 48px; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); width: 100%; }
+textarea { resize: vertical; min-height: 150px; }
+[aria-invalid="true"] { border-color: var(--error); }
+.field-error { min-height: 1.5em; color: var(--error); font-size: .78rem; }
+.status { color: var(--muted); font-size: var(--text-sm); }
+.status[data-state="error"] { color: var(--error); }
+.back-to-top { position: fixed; right: 20px; bottom: 20px; z-index: 10; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); }
