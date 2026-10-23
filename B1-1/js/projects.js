@@ -6,8 +6,11 @@ export function safeUrl(value) {
 export function selectProjects(repos) {
   return featuredProjects.map(meta => {
     const repo = repos.find(item => item.name === meta.repo && !item.private && item.owner?.login === config.githubUser);
-    return repo ? { ...meta, language: repo.language || '기타', description: meta.description || repo.description || '설명을 준비하고 있습니다.', github: safeUrl(repo.html_url) } : null;
-  }).filter(Boolean);
+    return repo && safeUrl(repo.html_url) ? { ...meta, language: repo.language || '기타', description: meta.description || repo.description || '설명을 준비하고 있습니다.', github: safeUrl(repo.html_url), createdAt: repo.created_at } : null;
+  }).filter(Boolean).sort((a, b) => {
+    const dateDifference = (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0);
+    return dateDifference || a.repo.localeCompare(b.repo);
+  });
 }
 export function filterProjects(projects, category, language) {
   return projects.filter(project => (category === 'all' || project.category === category) && (language === 'all' || project.language === language));
@@ -19,20 +22,28 @@ function element(tag, className, text) {
   return node;
 }
 function card(project) {
-  const article = element('article', 'project-card panel');
-  article.append(element('span', 'project-category', categories[project.category]), element('h3', '', project.title), element('p', '', project.description));
+  const article = element('article', 'project-card');
+  article.dataset.category = project.category;
+  const link = element('a', 'project-card-link');
+  link.href = project.github;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.setAttribute('aria-labelledby', `project-${project.repo}`);
+  const top = element('div', 'project-card-top');
+  const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  arrow.setAttribute('class', 'icon project-arrow');
+  arrow.setAttribute('aria-hidden', 'true');
+  const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  use.setAttribute('href', 'images/icons.svg#arrow');
+  arrow.append(use);
+  top.append(element('span', 'project-category', categories[project.category]), arrow);
+  const heading = element('h3', '', project.title);
+  heading.id = `project-${project.repo}`;
+  heading.append(element('span', 'sr-only', ' GitHub 저장소 (새 탭)'));
   const badges = element('div', 'badges');
-  badges.append(element('span', 'badge', project.language));
-  article.append(badges);
-  const links = element('div', 'project-links');
-  [[project.github, 'GitHub ↗'], [safeUrl(project.demo), 'Live Demo ↗']].forEach(([url, label]) => {
-    if (!url) return;
-    const link = element('a', '', label);
-    link.href = url; link.target = '_blank'; link.rel = 'noopener noreferrer';
-    link.setAttribute('aria-label', `${project.title} ${label} (새 탭)`);
-    links.append(link);
-  });
-  article.append(links);
+  badges.append(...project.technologies.map(technology => element('span', 'badge', technology)));
+  link.append(top, heading, element('p', '', project.description), badges);
+  article.append(link);
   return article;
 }
 export async function fetchRepositories(fetcher = fetch) {
@@ -42,7 +53,7 @@ export async function fetchRepositories(fetcher = fetch) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000);
     try {
-      const response = await fetcher(`https://api.github.com/users/${config.githubUser}/repos?per_page=100&page=${page}&sort=updated`, {
+      const response = await fetcher(`https://api.github.com/users/${config.githubUser}/repos?per_page=100&page=${page}&sort=created&direction=desc`, {
         signal: controller.signal, headers: { Accept: 'application/vnd.github+json' },
       });
       if (response.status === 403 || response.status === 429) {

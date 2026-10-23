@@ -1,16 +1,20 @@
 export function initAnimations() {
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const targets = [...document.querySelectorAll('[data-reveal]')];
+  const lines = [...document.querySelectorAll('[data-type-line]')];
+  const sentences = lines.map(line => Array.from(line.textContent));
+  const description = document.querySelector('.hero-description');
   let observer;
   let timer;
-  const typing = document.querySelector('#typing-text');
-  const sentence = typing.textContent;
   function stop() {
     clearTimeout(timer);
     observer?.disconnect();
     targets.forEach(target => target.classList.remove('reveal-pending'));
-    typing.textContent = sentence;
-    typing.classList.remove('typing');
+    lines.forEach((line, index) => {
+      line.textContent = sentences[index].join('');
+      line.classList.remove('typing');
+    });
+    description.classList.remove('hero-description-pending');
   }
   if (!reduced.matches) {
     if ('IntersectionObserver' in window) {
@@ -24,16 +28,27 @@ export function initAnimations() {
       }, { threshold: 0.2 });
       targets.forEach(target => { target.classList.add('reveal-pending'); observer.observe(target); });
     }
+    lines.forEach(line => { line.textContent = ''; });
+    description.classList.add('hero-description-pending');
+    let lineIndex = 0;
     let position = 0;
-    typing.textContent = '';
-    typing.classList.add('typing');
     function type() {
+      const line = lines[lineIndex];
+      line.classList.add('typing');
       position += 1;
-      typing.textContent = sentence.slice(0, position);
-      if (position < sentence.length) timer = setTimeout(type, 30);
-      else typing.classList.remove('typing');
+      line.textContent = sentences[lineIndex].slice(0, position).join('');
+      if (position < sentences[lineIndex].length) {
+        timer = setTimeout(type, 65);
+      } else {
+        line.classList.remove('typing');
+        lineIndex += 1;
+        position = 0;
+        timer = lineIndex < lines.length
+          ? setTimeout(type, 140)
+          : setTimeout(() => description.classList.remove('hero-description-pending'), 180);
+      }
     }
-    timer = setTimeout(type, 350);
+    timer = setTimeout(type, 300);
   }
   reduced.addEventListener('change', stop);
 }

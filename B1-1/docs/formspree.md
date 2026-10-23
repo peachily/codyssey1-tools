@@ -8,6 +8,6 @@
 4. 그 주소를 담당 개발자에게 전달하거나 `B1-1/js/config.js`의 `formEndpoint: ''` 따옴표 안에 넣습니다. 비밀번호나 비공개 키를 공유할 필요는 없습니다.
 5. 연결 후 웹사이트 폼으로 테스트 메시지 한 건을 보내고 Gmail 수신함·스팸함과 Formspree 대시보드에서 도착 여부를 확인합니다.
 
-현재 endpoint는 비어 있습니다. 사용자 요청에 따라 초기 화면에는 설정 안내를 표시하지 않습니다. 실제 전송되지 않은 메시지를 성공으로 표시하지 않으며, 제출 시에는 일반 전송 실패 상태를 표시합니다.
+2026-10-23 사용자 제공 endpoint `https://formspree.io/f/mnppayoo`를 연결했습니다. 코드에서 실제 전송 테스트를 하지는 않았으므로 Gmail 수신 확인은 남아 있습니다. 초기 화면에는 설정 안내를 표시하지 않습니다.
 
 공식 안내: [Building an HTML Form](https://help.formspree.io/articles/building-your-form/building-an-html-form/)

@@ -11,9 +11,25 @@ import { initAnimations } from '../js/animations.js';
 const { JSDOM } = await import(pathToFileURL(process.env.JSDOM_PATH).href);
 const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const fixture = [
-  ['school01-numbermonster', 'JavaScript'], ['school02-countcake', 'HTML'],
-  ['school03-lunch-menu-extractor', 'Python'], ['codyssey1-tools', 'Python'],
-].map(([name, language]) => ({ name, language, private: false, owner: { login: 'peachily' }, html_url: `https://github.com/peachily/${name}` }));
+  ['school01-numbermonster', 'JavaScript', '2026-03-17T02:27:42Z'],
+  ['school02-countcake', 'JavaScript', '2026-03-17T11:01:39Z'],
+  ['school04-pet-simulator', 'JavaScript', '2026-07-28T11:36:28Z'],
+  ['school05-animal-rescue', 'JavaScript', '2026-10-17T06:43:09Z'],
+  ['school06-snack-market', 'TypeScript', '2026-10-17T06:49:29Z'],
+  ['school03-lunch-menu-extractor', 'Python', '2026-04-20T04:48:14Z'],
+  ['codyssey0-python', 'Python', '2025-09-18T09:21:48Z'],
+  ['codyssey0-devops', 'HTML', '2025-07-14T08:54:30Z'],
+  ['codyssey1-selection', 'Python', '2026-03-30T08:56:04Z'],
+  ['codyssey1-tools', 'Python', '2026-09-07T06:33:42Z'],
+  ['codyssey1-termproject', 'Python', '2026-10-01T07:23:11Z'],
+].map(([name, language, created_at], index) => ({
+  name, language, created_at,
+  // Deliberately disagree with creation order: display must ignore these fields.
+  updated_at: `2026-10-${String(index + 1).padStart(2, '0')}T00:00:00Z`,
+  pushed_at: `2026-09-${String(index + 1).padStart(2, '0')}T00:00:00Z`,
+  private: false, owner: { login: 'peachily' }, html_url: `https://github.com/peachily/${name}`,
+}));
+const originalFormEndpoint = config.formEndpoint;
 const flush = () => new Promise(resolve => setImmediate(resolve));
 function setup() {
   const dom = new JSDOM(html, { url: 'http://localhost:8000/B1-1/', pretendToBeVisual: true });
@@ -43,18 +59,27 @@ test('HTML: IDs, labels, semantic landmarks, internal anchors and local assets',
   assert.equal(dom.window.document.querySelectorAll('[style],[onclick],[onsubmit]').length, 0);
   dom.window.close();
 });
-test('Project selection excludes missing, private and foreign owner repos; preserves editorial order', () => {
-  assert.equal(selectProjects(fixture).length, 4);
+test('Projects include the 11 selected public repos only and explicitly sort by created_at descending', () => {
+  const projects = selectProjects([...fixture.toReversed(), { ...fixture[0], name: 'unselected-project' }]);
+  assert.equal(projects.length, 11);
+  assert.equal(new Set(projects.map(project => project.repo)).size, 11);
   assert.equal(selectProjects([{ ...fixture[0], private: true }]).length, 0);
   assert.equal(selectProjects([{ ...fixture[0], owner: { login: 'other' } }]).length, 0);
-  assert.equal(selectProjects(fixture.toReversed())[0].repo, fixture[0].name);
+  assert.equal(selectProjects([{ ...fixture[0], html_url: 'javascript:alert(1)' }]).length, 0);
+  assert.equal(selectProjects(fixture.slice(1)).length, 10);
+  assert.equal(projects[0].repo, 'school06-snack-market');
+  assert.equal(projects.at(-1).repo, 'codyssey0-devops');
+  assert.deepEqual(projects.map(project => project.repo), selectProjects(fixture).map(project => project.repo));
+  for (let i = 1; i < projects.length; i++) assert.ok(Date.parse(projects[i - 1].createdAt) >= Date.parse(projects[i].createdAt));
 });
-test('Category AND language filters produce success and empty results', () => {
+test('Category AND primary-language filters preserve creation-date order and handle empty results', () => {
   const projects = selectProjects(fixture);
-  assert.equal(filterProjects(projects, 'all', 'all').length, 4);
-  assert.equal(filterProjects(projects, 'education', 'all').length, 2);
+  assert.equal(filterProjects(projects, 'all', 'all').length, 11);
+  assert.equal(filterProjects(projects, 'education', 'all').length, 5);
   assert.equal(filterProjects(projects, 'school', 'Python').length, 1);
   assert.equal(filterProjects(projects, 'education', 'Python').length, 0);
+  const filtered = filterProjects(projects, 'development', 'Python');
+  assert.deepEqual(filtered.map(project => project.repo), ['codyssey1-termproject', 'codyssey1-tools', 'codyssey1-selection', 'codyssey0-python']);
 });
 test('Only HTTPS links and the intended Formspree endpoint are accepted', () => {
   for (const url of ['', 'javascript:alert(1)', 'http://example.com']) assert.equal(safeUrl(url), null);
@@ -65,6 +90,7 @@ test('GitHub fetch follows pagination without dropping older repositories', asyn
   const urls = [];
   const data = await fetchRepositories(async url => { urls.push(url); return new Response(JSON.stringify(urls.length === 1 ? Array(100).fill(fixture[0]) : [fixture[1]])); });
   assert.equal(data.length, 101); assert.match(urls[1], /page=2/);
+  assert.match(urls[0], /sort=created&direction=desc/);
 });
 test('GitHub 403, 429, server errors, invalid payloads and network failures reject', async () => {
   for (const status of [403, 429]) await assert.rejects(fetchRepositories(async () => new Response('{}', { status })), /요청이 제한/);
@@ -80,12 +106,33 @@ test('Projects DOM: loading → error → retry → success → combined filter 
   await flush(); assert.equal($('#project-retry').hidden, false); assert.match($('#project-status').textContent, /제한/);
   globalThis.fetch = async () => new Response(JSON.stringify(fixture));
   $('#project-retry').click(); await flush();
-  assert.equal(dom.window.document.querySelectorAll('.project-card').length, 4);
+  assert.equal(dom.window.document.querySelectorAll('.project-card').length, 11);
   $('[data-category="education"]').click();
   $('#language-filter').value = 'Python'; $('#language-filter').dispatchEvent(event('change'));
   assert.equal(dom.window.document.querySelectorAll('.project-card').length, 0);
   assert.match($('#project-status').textContent, /조건에 맞는/);
   $('[data-category="school"]').click(); assert.equal(dom.window.document.querySelectorAll('.project-card').length, 1);
+  dom.window.close();
+});
+test('Project cards provide one full-card keyboard link, a top arrow and verified technology tags', async () => {
+  const { $, dom } = setup();
+  globalThis.fetch = async () => new Response(JSON.stringify(fixture));
+  initProjects(); await flush();
+  for (const card of dom.window.document.querySelectorAll('.project-card')) {
+    const links = card.querySelectorAll('a');
+    assert.equal(links.length, 1);
+    const link = links[0];
+    assert.ok(link.href.startsWith('https://github.com/peachily/'));
+    assert.equal(link.tabIndex, 0);
+    assert.ok(card.querySelector('.project-arrow use'));
+    assert.equal(link.getAttribute('aria-labelledby'), card.querySelector('h3').id);
+    assert.ok(card.querySelector('.badge').textContent);
+    assert.equal(card.querySelector('img'), null);
+  }
+  const pet = $('[href="https://github.com/peachily/school04-pet-simulator"]');
+  assert.ok([...pet.querySelectorAll('.badge')].some(badge => badge.textContent === 'React'));
+  const market = $('[href="https://github.com/peachily/school06-snack-market"]');
+  assert.ok([...market.querySelectorAll('.badge')].some(badge => badge.textContent === 'TypeScript'));
   dom.window.close();
 });
 test('Contact validation: whitespace, malformed email and message boundaries', () => {
@@ -107,7 +154,7 @@ test('Contact DOM: validation errors, input correction and no fabricated success
   }
   $('#contact-form').dispatchEvent(event('submit')); await flush();
   assert.equal(requests, 0); assert.match($('#contact-status').textContent, /전송되지 않았습니다/);
-  dom.window.close();
+  config.formEndpoint = originalFormEndpoint; dom.window.close();
 });
 test('Contact DOM: configured service sending, failure retention, retry success and duplicate guard', async () => {
   const { $, dom, event } = setup(); config.formEndpoint = 'https://formspree.io/f/testonly';
@@ -122,7 +169,7 @@ test('Contact DOM: configured service sending, failure retention, retry success 
   globalThis.fetch = async (_url, options) => { assert.equal(JSON.parse(options.body).name, '수정'); return new Response('{}'); };
   $('#contact-form').dispatchEvent(event('submit')); await flush();
   assert.match($('#contact-status').textContent, /전송되었습니다/); assert.equal($('#name').value, '');
-  config.formEndpoint = ''; dom.window.close();
+  config.formEndpoint = originalFormEndpoint; dom.window.close();
 });
 test('Navigation: mobile menu state, Escape, section anchor, 60px and 300px scroll boundaries', async () => {
   const { $, dom, event } = setup(); initNavigation();
@@ -155,7 +202,24 @@ test('Animations: IntersectionObserver threshold 0.2 and reduced motion stops pe
   dom.window.IntersectionObserver = globalThis.IntersectionObserver;
   initAnimations(); assert.equal(options.threshold, 0.2); assert.ok($('.reveal-pending'));
   media.get('(prefers-reduced-motion: reduce)').change(true);
-  assert.equal($('.reveal-pending'), null); assert.equal($('#typing-text').textContent, '특수교육 현장에서 배우고, 필요한 것들을 직접 만들어 가고 있습니다.');
+  assert.equal($('.reveal-pending'), null); assert.equal($('#typing-text').textContent, '교육의 경험을기술로 이어갑니다.');
+  assert.equal($('.hero-description').classList.contains('hero-description-pending'), false);
+  dom.window.close();
+});
+test('Hero types the heading before revealing its description, with an intact accessible heading', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { $, dom } = setup();
+  initAnimations();
+  assert.equal($('#typing-text').textContent, '');
+  assert.ok($('.hero-description-pending'));
+  assert.equal($('#hero-heading .sr-only').textContent, '교육의 경험을 기술로 이어갑니다.');
+  t.mock.timers.tick(300);
+  assert.equal($('#typing-text').textContent, '교');
+  assert.ok($('.hero-description-pending'));
+  for (let step = 0; step < 40; step += 1) t.mock.timers.tick(100);
+  assert.equal($('#typing-text').textContent, '교육의 경험을기술로 이어갑니다.');
+  assert.equal($('.hero-description-pending'), null);
+  assert.equal($('.typing'), null);
   dom.window.close();
 });
 test('Styles: responsive breakpoints, grid pattern, theme and text contrast', async () => {

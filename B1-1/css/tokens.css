@@ -5,7 +5,7 @@
   --bg: #fffdfc; --surface: #fff; --text: #403c43; --muted: #716b73;
   --border: #ebe7e9; --accent: #e29487; --soft: #f8f5f3; --error: #a12b43;
   --header-bg: #fffdfcf5; --focus: #89506f;
-  --pastel-strength: 45%; --section-tint: 24%;
+  --pastel-strength: 45%; --section-tint: 24%; --project-strength: 100%;
   --primary-bg: var(--peach); --primary-hover: #efb5c2; --primary-text: #403c43;
   --font: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   --text-sm: .85rem; --text-base: 1rem; --text-lg: 1.125rem;
@@ -22,6 +22,6 @@
   --bg: #211f25; --surface: #2b2830; --text: #f3edf2; --muted: #c0b7c2;
   --border: #45404b; --accent: #f6c5cf; --soft: #302b33; --error: #ffafbb;
   --header-bg: #211f25f5; --focus: #f6c5cf;
-  --pastel-strength: 12%; --section-tint: 5%;
+  --pastel-strength: 12%; --section-tint: 5%; --project-strength: 16%;
   --shadow: 0 12px 35px #0002;
 }

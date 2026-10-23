@@ -8,7 +8,7 @@
   .hero-portrait { display: block; }
   .hero-portrait img { width: 160px; height: 160px; }
   .about-layout { grid-template-columns: 1fr 1.7fr; gap: 48px; }
-  .skills-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+  .skills-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .contact-layout { grid-template-columns: 1fr 1.2fr; gap: 40px; }
 }
 @media (min-width: 1024px) {
@@ -17,7 +17,6 @@
   .hero-description { font-size: 1.05rem; }
   .section { padding-block: 96px; }
   .about-layout { grid-template-columns: 1fr 1.8fr; gap: 100px; }
-  .skills-grid { gap: 40px; }
   .contact-layout { grid-template-columns: 1fr 1fr; gap: 100px; }
 }
 @media (max-width: 359px) {

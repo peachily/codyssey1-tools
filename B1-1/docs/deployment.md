@@ -43,14 +43,14 @@ curl -I https://peachily.dev
 
 ## Formspree
 
-처음 설정한다면 [간단한 연결 순서](formspree.md)를 참고하세요.
+2026-10-23 사용자 제공 `https://formspree.io/f/mnppayoo`를 연결했습니다. 실제 메일 전송·수신 검증은 아직 수행하지 않았습니다. 설정을 변경한다면 [연결 순서](formspree.md)를 참고하세요.
 
 1. 사용자 계정으로 Formspree에서 폼을 만들고 수신 주소 `peachily1108@gmail.com`을 연결·검증합니다.
 2. 대시보드에서 확인한 공개 endpoint `https://formspree.io/f/...`를 `js/config.js`의 `formEndpoint`에 넣습니다. 공개 폼 ID는 클라이언트 설정값이며, 비공개 API 키를 넣으면 안 됩니다.
 3. 서비스에서 필요하면 허용 도메인에 `peachily.dev`를 설정합니다. 서비스 요금제·전송 한도·스팸 정책은 본인 계정에서 확인합니다.
 4. 로컬 또는 배포 사이트에서 본인의 테스트 메시지를 한 번 보내고, 성공 UI뿐 아니라 **수신함 도착**을 확인합니다. 실제 수신 검증 전에는 완료로 표시하지 않습니다.
 
-빈 endpoint 상태에서도 입력 검증은 동작하며, 전송 요청 없이 이메일 대안을 안내합니다. 연결 후에는 JSON POST와 `Accept: application/json`을 사용합니다. 진행 중 중복 전송을 막고, 실패 시 입력을 유지합니다. 타임아웃은 서버 수신 여부가 불명확하므로 재전송 주의 문구를 표시합니다.
+endpoint를 비우면 전송 요청 없이 일반 실패 상태를 표시합니다. 연결된 폼은 JSON POST와 `Accept: application/json`을 사용합니다. 진행 중 중복 전송을 막고, 실패 시 입력을 유지합니다. 타임아웃은 서버 수신 여부가 불명확하므로 재전송 주의 문구를 표시합니다.
 
 [Formspree 공식 AJAX 안내](https://formspree.io/blog/formspree-ajax/)
 

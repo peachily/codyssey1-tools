@@ -10,7 +10,7 @@
 
 ## 기술과 구조
 
-HTML5 / CSS3 / Vanilla JavaScript (ES Modules). 프레임워크, 빌드 도구, 런타임 패키지, CDN 없이 실행합니다. GitHub REST API와 설정 후 Formspree를 호출합니다. 시스템 폰트와 공통 SVG Sprite를 사용합니다.
+HTML5 / CSS3 / Vanilla JavaScript (ES Modules). 프레임워크, 빌드 도구, 런타임 패키지, CDN 없이 실행합니다. GitHub REST API와 Formspree를 호출합니다. 시스템 폰트와 공통 SVG Sprite를 사용합니다.
 
 ```text
 B1-1/
@@ -39,15 +39,15 @@ http://localhost:8000/B1-1/ 접속. ES Modules 사용으로 `file://` 직접 열
 - Hero / About / Skills / Projects / Contact / Footer와 반응형 모바일 메뉴
 - Sticky Header(60px), 현재 섹션 표시, 부드러운 앵커 이동, Back-to-top(300px)
 - Light/Dark 전환·localStorage 저장·OS 테마 감지·사용자 선택 우선
-- IntersectionObserver(threshold 0.2) 스크롤 등장, Hero 타이핑, 모션 감소 지원
-- 공개 GitHub 저장소 비동기 조회, 선정한 프로젝트 카드, 카테고리+주 언어 복합 필터
+- IntersectionObserver(threshold 0.2) 스크롤 등장, Hero 제목 타이핑 후 소개 문장 등장, 모션 감소 지원
+- 공개 GitHub 저장소 비동기 조회, 선정한 공개 프로젝트 11개, 생성일 최신순 정렬, 카테고리+주 언어 복합 필터
 - API 로딩/오류/빈 결과/재시도, 403·429 제한·타임아웃 처리
-- Contact 필드별 검증·전송 상태·중복 제출 방지, Formspree 설정 시 실제 POST
+- Contact 필드별 검증·전송 상태·중복 제출 방지, 사용자 제공 Formspree endpoint로 POST
 - 키보드 포커스, ARIA 상태, skip link, SVG 재사용, 외부 링크 보호
 
 ## 설정과 제출
 
-`js/config.js`에서 대표 저장소와 연락 서비스·소셜 URL을 관리합니다. **Formspree endpoint 미설정 상태에서는 전송하지 않고 이메일 연락을 안내합니다.** YouTube·Blog와 복숭아 이미지는 사용자 제공 정보로 연결했습니다. MADI 미확인 링크는 만들지 않았습니다.
+`js/config.js`에서 대표 저장소와 연락 서비스·소셜 URL을 관리합니다. **Formspree endpoint는 연결했으며 실제 이메일 수신 확인은 남아 있습니다.** YouTube·Blog와 복숭아 이미지는 사용자 제공 정보로 연결했습니다. MADI 미확인 링크는 만들지 않았습니다.
 
 - [배포 및 사용자 설정](docs/deployment.md): GitHub Pages 수동 배포, Cloudflare, Formspree 연결
 - [요구사항별 전체 체크리스트](docs/checklist.md): 완료·미완료 구분, 이벤트→상태→렌더링 7개 사례
@@ -61,7 +61,7 @@ http://localhost:8000/B1-1/ 접속. ES Modules 사용으로 `file://` 직접 열
 
 ## 자동 검증
 
-모든 JS 문법 검사, DOM/로직 **14개 테스트 통과**. 실제 GitHub API 4개 프로젝트 매칭과 로컬 HTTP 200 확인. 실제 레이아웃과 이메일 수신은 미검증입니다.
+모든 JS 문법 검사, DOM/로직 **16개 테스트 통과**. 실제 GitHub API 11개 프로젝트 매칭·생성일 정렬과 로컬 HTTP 200 확인. 실제 레이아웃과 이메일 수신은 미검증입니다.
 
 사이트 실행에는 테스트 도구가 필요 없습니다. 재검증 시 Node.js 22.13 이상과 별도 임시 경로의 jsdom이 필요합니다:
 
