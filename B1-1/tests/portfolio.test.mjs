@@ -1,11 +1,13 @@
 // Test-only dependency: JSDOM_PATH=/absolute/path/to/jsdom/lib/api.js node --test B1-1/tests/*.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFile, access } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { selectProjects, filterProjects, fetchRepositories, initProjects, safeUrl } from '../js/projects.js';
 import { validateField, isFormEndpoint, initContact } from '../js/contact.js';
 import { config } from '../js/config.js';
+import { initSkills, createTechnologyBadge } from '../js/technologies.js';
 import { initNavigation } from '../js/navigation.js';
 import { initAnimations } from '../js/animations.js';
 const { JSDOM } = await import(pathToFileURL(process.env.JSDOM_PATH).href);
@@ -58,6 +60,47 @@ test('HTML: IDs, labels, semantic landmarks, internal anchors and local assets',
   }
   assert.equal(dom.window.document.querySelectorAll('[style],[onclick],[onsubmit]').length, 0);
   dom.window.close();
+});
+test('Skills: three groups, 24 technologies, local logos and text survives image errors', () => {
+  const { $, dom, event } = setup();
+  initSkills();
+  const expected = [
+    ['Frontend', ['HTML5', 'CSS3', 'JavaScript', 'TypeScript', 'React', 'Vite', 'Tailwind CSS']],
+    ['Backend, Data & AI', ['Python', 'Node.js', 'FastAPI', 'SQLite', 'PostgreSQL', 'Supabase', 'PocketBase', 'OpenAI API']],
+    ['Tools & Deployment', ['Git', 'GitHub', 'Linux', 'Amazon Web Services', 'Docker', 'Railway', 'Cloudflare', 'Netlify', 'Figma']],
+  ];
+  const cards = [...dom.window.document.querySelectorAll('#skills .skill-card')];
+  assert.equal(cards.length, 3);
+  cards.forEach((card, index) => {
+    assert.equal(card.querySelector('h3').textContent, expected[index][0]);
+    const badges = [...card.querySelectorAll('.technology-badge')];
+    assert.deepEqual(badges.map(badge => badge.textContent), expected[index][1]);
+    badges.forEach(badge => {
+      const logo = badge.querySelector('img');
+      assert.ok(logo.getAttribute('src').startsWith('assets/icons/technologies/'));
+      assert.equal(logo.alt, '');
+      assert.equal(logo.width, 18); assert.equal(logo.height, 18);
+      const name = badge.textContent;
+      logo.dispatchEvent(event('error'));
+      assert.equal(badge.textContent, name);
+    });
+  });
+  dom.window.close();
+});
+test('Brand assets retain upstream bytes and provenance, with the official OpenAI asset', async () => {
+  const manifest = JSON.parse(await readFile(new URL('../assets/licenses/sources.json', import.meta.url), 'utf8'));
+  assert.equal(manifest.assets.length, 24);
+  assert.equal(new Set(manifest.assets.map(asset => asset.file)).size, 24);
+  for (const asset of manifest.assets) {
+    const data = await readFile(new URL(`../assets/${asset.file}`, import.meta.url));
+    assert.equal(createHash('sha256').update(data).digest('hex'), asset.sha256);
+    assert.match(data.toString(), /<svg/);
+    assert.doesNotMatch(data.toString(), /<script|<foreignObject/i);
+  }
+  const openai = manifest.assets.find(asset => asset.file.endsWith('/openai.svg'));
+  assert.equal(new URL(openai.source).hostname, 'cdn.openai.com');
+  assert.match(openai.archivePath, /OpenAI-black-monoblossom/);
+  await access(new URL('../assets/licenses/devicon-MIT.txt', import.meta.url));
 });
 test('Projects include the 11 selected public repos only and explicitly sort by created_at descending', () => {
   const projects = selectProjects([...fixture.toReversed(), { ...fixture[0], name: 'unselected-project' }]);
@@ -189,9 +232,9 @@ test('Theme: OS default, saved manual priority, persistence and OS changes', asy
   const { $, dom, media } = setup(); matchMedia('(prefers-color-scheme: dark)').matches = true;
   const { initTheme } = await import('../js/theme.js?test=os'); initTheme();
   assert.equal(dom.window.document.documentElement.dataset.theme, 'dark');
-  assert.equal($('#theme-toggle use').getAttribute('href'), 'images/icons.svg#sun');
+  assert.equal($('#theme-toggle use').getAttribute('href'), 'assets/icons/ui.svg#sun');
   $('#theme-toggle').click();
-  assert.equal($('#theme-toggle use').getAttribute('href'), 'images/icons.svg#moon'); assert.equal(localStorage.getItem('peachily-theme'), 'light');
+  assert.equal($('#theme-toggle use').getAttribute('href'), 'assets/icons/ui.svg#moon'); assert.equal(localStorage.getItem('peachily-theme'), 'light');
   media.get('(prefers-color-scheme: dark)').change(true); assert.equal(dom.window.document.documentElement.dataset.theme, 'light');
   localStorage.setItem('peachily-theme', 'dark'); await import('../js/theme.js?test=saved');
   assert.equal(dom.window.document.documentElement.dataset.theme, 'dark'); dom.window.close();

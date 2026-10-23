@@ -22,8 +22,7 @@ jobs:
         run: |
           mkdir _portfolio_site
           cp B1-1/index.html B1-1/CNAME B1-1/.nojekyll _portfolio_site/
-          cp -R B1-1/css B1-1/js B1-1/images _portfolio_site/
-          rm _portfolio_site/images/README.md
+          cp -R B1-1/css B1-1/js B1-1/assets _portfolio_site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _portfolio_site

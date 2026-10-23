@@ -4,9 +4,11 @@ import { initProjects, safeUrl } from './projects.js';
 import { initAnimations } from './animations.js';
 import { initContact } from './contact.js';
 import { config } from './config.js';
+import { initSkills } from './technologies.js';
 
 initTheme();
 initNavigation();
+initSkills();
 initProjects();
 initAnimations();
 initContact();

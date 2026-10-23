@@ -17,6 +17,10 @@ button:disabled { opacity: .6; cursor: wait; transform: none; }
 .text-link:hover { color: var(--accent); }
 .badge { display: inline-block; padding: 4px 11px; border: 1px solid var(--border); border-radius: var(--radius-pill); font-size: .75rem; }
 .badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.technology-badge { display: inline-flex; align-items: center; gap: 7px; max-width: 100%; padding: 5px 10px; border-color: transparent; background: #fff; color: #403c43; line-height: 1.6; }
+.technology-logo { width: 18px; height: 18px; flex: 0 0 18px; object-fit: contain; }
+.technology-logo--railway { background: #0b0d0e; border-radius: 50%; }
+.technology-badge > span { min-width: 0; }
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field label { font-size: var(--text-sm); font-weight: 650; }

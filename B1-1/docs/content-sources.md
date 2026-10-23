@@ -27,6 +27,6 @@
 
 이번 카드는 텍스트 중심으로 구성하며 이미지 영역을 만들지 않습니다. README의 장식 이미지나 게임 에셋을 실제 화면 캡처처럼 사용하지 않습니다. 카드 전체 링크는 GitHub 저장소 하나로 연결합니다.
 
-Skills는 검증된 기존 기술 3개 그룹을 유지하고 크림 계열로 통일했습니다. 프로젝트의 React 등은 해당 프로젝트의 기술 태그로 표시되며, 이 포트폴리오 구현은 계속 Vanilla JavaScript입니다.
+Skills는 사용자 최종 확정 목록 24개를 3개 그룹으로 표시합니다. 그룹은 Frontend, Backend, Data & AI, Tools & Deployment입니다. REST API는 Skills에서 제외했습니다. 로고 출처·라이선스는 [에셋 안내](../assets/README.md)에 기록했습니다. 이 포트폴리오 구현은 계속 Vanilla JavaScript이며 기술 숙련도를 수치로 주장하지 않습니다.
 
-YouTube·Blog·Instagram과 images/peachily.jpg는 사용자 제공 정보입니다. MADI 조직 저장소의 미확인 링크는 생성하지 않았습니다.
+YouTube·Blog·Instagram과 assets/images/peachily.jpg는 사용자 제공 정보입니다. MADI 조직 저장소의 미확인 링크는 생성하지 않았습니다.

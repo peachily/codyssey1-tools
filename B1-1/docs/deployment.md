@@ -56,7 +56,7 @@ endpoint를 비우면 전송 요청 없이 일반 실패 상태를 표시합니�
 
 ## 나머지 설정
 
-- 이미지: 제공된 `images/peachily.jpg` 연결 완료. 교체 방법은 [images 안내](../images/README.md) 참고.
+- 이미지: 제공된 `assets/images/peachily.jpg` 연결 완료. 교체 방법은 [images 안내](../assets/README.md) 참고.
 - YouTube / Blog: 사용자 제공 URL 연결 완료. `js/config.js`에서 변경할 수 있습니다.
 - Live Demo: 직접 접속 확인한 공개 URL만 `featuredProjects[].demo`에 입력합니다. 현재는 확인된 URL이 없어 표시하지 않습니다.
 - MADI: 조직 저장소의 정확한 주소와 공개 여부 확인 후 별도로 연결해야 합니다. 현재는 About의 기획 소개에만 등장하며 가짜 프로젝트 카드는 없습니다.

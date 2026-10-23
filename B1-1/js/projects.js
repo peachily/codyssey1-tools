@@ -34,7 +34,7 @@ function card(project) {
   arrow.setAttribute('class', 'icon project-arrow');
   arrow.setAttribute('aria-hidden', 'true');
   const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-  use.setAttribute('href', 'images/icons.svg#arrow');
+  use.setAttribute('href', 'assets/icons/ui.svg#arrow');
   arrow.append(use);
   top.append(element('span', 'project-category', categories[project.category]), arrow);
   const heading = element('h3', '', project.title);

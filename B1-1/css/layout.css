@@ -33,7 +33,6 @@
 #skills .section-heading h2 { font-size: 1.5rem; }
 .skills-grid { display: grid; gap: 16px; }
 .skill-card { background: color-mix(in srgb, var(--cream) var(--pastel-strength), var(--surface)); border-radius: var(--radius); padding: 20px; }
-.skill-card .badge { border-color: transparent; background: var(--surface); }
 .skill-card h3 { font-size: .9rem; letter-spacing: -.02em; margin-bottom: 12px; }
 .project-filters { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; }
 .category-filters { display: flex; flex-wrap: wrap; gap: 4px; }

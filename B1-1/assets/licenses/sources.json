@@ -1,0 +1,152 @@
+{
+  "retrieved": "2026-10-23",
+  "deviconRevision": "6a37858047b0e8d9c9c0e68f4a071fc410652e89",
+  "assets": [
+    {
+      "file": "icons/technologies/html5.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/html5/html5-original.svg",
+      "sha256": "34826e5b3315daadf4fa15f723a3c1d5ba4a89277bfd94e22ac4d7d3d54338c5",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/css3.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/css3/css3-original.svg",
+      "sha256": "36b7d94b657d571d3f94042acbf6a4c86a5301a222f83f4b4583ad2acf6e297d",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/javascript.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/javascript/javascript-original.svg",
+      "sha256": "0656ff65fc8eeacda5c78d7f9ffe91ec1eb919db64f56e0b7dcd460af4bbd36c",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/typescript.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/typescript/typescript-original.svg",
+      "sha256": "c9191199f4049920c2fc19035b8a6664f37f4689fcd9e8434e786097e78863f0",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/react.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/react/react-original.svg",
+      "sha256": "5825b649c8c04dec13ecf01d0182401bd0ec71789d2fa06224866d882cd1515f",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/vitejs.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/vitejs/vitejs-original.svg",
+      "sha256": "f84e50febcb3a2a81399c9a1ae76d96dc235428202f91610b6f36bfb5b62051a",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/python.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/python/python-original.svg",
+      "sha256": "71493b4a732f0532b3a03a7a95da3ee11a65766367c8303b901ffbe7bf91a3a2",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/nodejs.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/nodejs/nodejs-original.svg",
+      "sha256": "3218687c5ea24a4d4c0a33dc5c287da38c33a72dcfe9382469d7ce4e0bf661fb",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/fastapi.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/fastapi/fastapi-original.svg",
+      "sha256": "7ef41f6a363b00ff595e6d0b933c025c92cbfae29dc1df24b2f6eb8b476ee486",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/sqlite.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/sqlite/sqlite-original.svg",
+      "sha256": "2b91c30887d3602479ba845cc012ef6ae577fba71eb96705a05b12e35d2c5e7e",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/git.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/git/git-original.svg",
+      "sha256": "717a57ea97bf7e86de721dab3e68afac66332a10676d5c9abce4ae6a5a9c9983",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/github.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/github/github-original.svg",
+      "sha256": "45262793de6292206a895ed63593cdb1eaed82074173f7f4b5bdb3e427ca805a",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/linux.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/linux/linux-original.svg",
+      "sha256": "cf50ae4a263c6142963fad3561f7cb0311d0d41cc6189eadfb34f81a8a36acb0",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/amazonwebservices.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/amazonwebservices/amazonwebservices-original-wordmark.svg",
+      "sha256": "5b4d8371d79a5c0d3a27ea4e929f772e68d47f7d267496bf9211d5f60fcf8084",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/railway.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/railway/railway-original.svg",
+      "sha256": "98fc02b94571aaf910d2d9d4e9f4c3ac4c94b9f16c54ea90d584a106d39b4827",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/cloudflare.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/cloudflare/cloudflare-original.svg",
+      "sha256": "6bb87edf9d3759ab11efb064a4cbe25271d4761539aa4928e68bcaf795839c63",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/openai.svg",
+      "source": "https://cdn.openai.com/brand/OpenAI-Logos-2025.zip",
+      "archivePath": "OpenAI-logos(new)/SVGs/OpenAI-black-monoblossom.svg",
+      "sha256": "7be72f1fea831d3ba81a545cee79b7e0ae69449d5d7837c9571ccbfb4aa1e00b",
+      "license": "OpenAI brand usage terms; not covered by Devicon MIT"
+    },
+    {
+      "file": "icons/technologies/tailwindcss.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/tailwindcss/tailwindcss-original.svg",
+      "sha256": "f8cec54589553807eb603bcaf4e056aa090196211698b056542e3cc62a2f3448",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/postgresql.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/postgresql/postgresql-original.svg",
+      "sha256": "f220a436258ed014c512ba4f9c0de6b9e5c2c4b55331a0a29f8c7a1a12c36443",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/supabase.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/supabase/supabase-original.svg",
+      "sha256": "bb8d502577de5e864437542bc2655b5d4d4782589386fc4583d912f46ac73181",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/docker.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/docker/docker-original.svg",
+      "sha256": "3fd830ea69431ed7a0b8d068cd5b34ad3f00a1a78195d50f13ff56713f2462e1",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/netlify.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/netlify/netlify-original.svg",
+      "sha256": "728e614f2d3a6587bbdd3f66232ef1a75dbc438d3af12d43ca20dee93bbe7758",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/figma.svg",
+      "source": "https://raw.githubusercontent.com/devicons/devicon/6a37858047b0e8d9c9c0e68f4a071fc410652e89/icons/figma/figma-original.svg",
+      "sha256": "d37c2bf1a1d4f10aeffb224e44da672cb8b9510f6e5a2e24b61758262995805e",
+      "license": "MIT (Devicon); brand rights remain with the owner"
+    },
+    {
+      "file": "icons/technologies/pocketbase.svg",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/c71c69e3a27e4436936b831c72643e6513b9f49b/icons/pocketbase.svg",
+      "sha256": "05f0301c19991164f139615b16d5192d2ab85a718d3aa877a064be3bc14fa96c",
+      "license": "CC0-1.0 (Simple Icons); brand rights remain with PocketBase"
+    }
+  ],
+  "simpleIconsRevision": "c71c69e3a27e4436936b831c72643e6513b9f49b"
+}
