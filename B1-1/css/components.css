@@ -23,18 +23,19 @@ button:disabled { opacity: .6; cursor: wait; transform: none; }
 .technology-logo { width: var(--technology-logo-size, 18px); height: var(--technology-logo-size, 18px); flex: 0 0 var(--technology-logo-size, 18px); object-fit: contain; }
 .technology-logo--railway { background: #0b0d0e; border-radius: 50%; }
 .technology-badge > span { min-width: 0; }
-.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field label { font-size: var(--text-sm); font-weight: 650; }
 input, textarea, select { min-height: 48px; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); width: 100%; }
-textarea { resize: vertical; min-height: 150px; }
+textarea { resize: none; min-height: 150px; }
 [aria-invalid="true"] { border-color: var(--error); }
 .field-error { min-height: 1.5em; color: var(--error); font-size: .78rem; }
 .status { color: var(--muted); font-size: var(--text-sm); }
 .status[data-state="error"] { color: var(--error); }
 .back-to-top { position: fixed; right: 20px; bottom: 20px; z-index: 10; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); }
-[data-reveal] { transition: opacity 600ms ease, transform 600ms ease; }
-.reveal-pending { opacity: 0; transform: translateY(18px); }
+[data-reveal] { transition: opacity 520ms cubic-bezier(.22, 1, .36, 1), transform 520ms cubic-bezier(.22, 1, .36, 1); }
+.reveal-pending { opacity: 0; transform: translateY(12px); }
+.skill-card:nth-child(2) { transition-delay: 70ms; }
+.skill-card:nth-child(3), .contact-form[data-reveal] { transition-delay: 140ms; }
 .typing::after { content: ''; display: inline-block; height: 1em; border-right: 1px solid currentColor; margin-left: 3px; vertical-align: middle; }
 @media (prefers-reduced-motion: reduce) { .reveal-pending, .hero-description-pending { opacity: 1; transform: none; } }
 /* Keep a useful focus target after anchor navigation without a large section outline. */

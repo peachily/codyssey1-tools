@@ -10,7 +10,6 @@ function render() {
   document.documentElement.dataset.theme = theme;
   const button = document.querySelector('#theme-toggle');
   if (!button) return;
-  button.setAttribute('aria-pressed', String(theme === 'dark'));
   button.querySelector('use').setAttribute('href', `assets/icons/ui.svg#${theme === 'dark' ? 'sun' : 'moon'}`);
   button.setAttribute('aria-label', theme === 'dark' ? '라이트 모드 켜기' : '다크 모드 켜기');
   document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#211f25' : '#FFFDFC';

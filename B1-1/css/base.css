@@ -13,6 +13,7 @@ button, a { touch-action: manipulation; }
 /* Suppress pointer-only browser rings; preserve a single keyboard focus ring. */
 :where(a[href], button, input, textarea, select, [tabindex]):focus:not(:focus-visible) { outline: none; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 5px; }
+[data-pointer-focus] :is(#language-filter, #contact-form input, #contact-form textarea):focus { outline: none; }
 [hidden] { display: none !important; }
 ::selection { background: var(--peach); color: #403c43; }
 .container { width: min(var(--content), calc(100% - 40px)); margin-inline: auto; }

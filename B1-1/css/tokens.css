@@ -7,10 +7,8 @@
   --header-bg: #fffdfcf5; --focus: #89506f;
   --pastel-strength: 45%; --section-tint: 24%; --project-strength: 100%;
   --primary-bg: var(--peach); --primary-hover: #efb5c2; --primary-text: #403c43;
-  --font: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-  --text-sm: .85rem; --text-base: 1rem; --text-lg: 1.125rem;
-  --space-1: .5rem; --space-2: 1rem; --space-3: 1.5rem; --space-4: 2rem;
-  --space-5: 3rem; --space-6: 5rem; --space-7: 7rem;
+  --font: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --text-sm: .85rem; --space-5: 3rem;
   --radius-sm: .625rem; --radius: 1rem; --radius-pill: 99rem;
   --shadow: 0 12px 35px #403c4308; --transition: 180ms ease;
   --content: 1120px; --header-height: 80px;

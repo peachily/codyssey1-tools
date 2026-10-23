@@ -2,13 +2,11 @@
 export const config = {
   githubUser: 'peachily',
   formEndpoint: 'https://formspree.io/f/mnppayoo',
-  youtubeUrl: 'https://www.youtube.com/@peachily_log',
-  blogUrl: 'https://peachily.tistory.com/',
 };
 export const categories = { education: '교육용', school: '학교 업무용', development: '개발 프로젝트' };
 // Editorial metadata: selection/title/category/description/verified technologies.
 // API owns public existence, primary language, GitHub URL and creation-date ordering.
-// Evidence is recorded in docs/content-sources.md. Array order is not display order.
+// Array order is not display order.
 export const featuredProjects = [
   { repo: 'school01-numbermonster', title: '숫자 몬스터 잡기', category: 'education', description: '학생별 수준에 맞춰 1부터 9까지의 수 읽기를 연습하는 게임.', technologies: ['JavaScript', 'HTML5', 'CSS3', 'Node.js'] },
   { repo: 'school02-countcake', title: '케이크 만들기', category: 'education', description: '교사와 학생의 화면을 연결해 1부터 9까지 개수 세기를 연습하는 게임.', technologies: ['JavaScript', 'HTML5', 'CSS3', 'Node.js'] },
@@ -24,4 +22,5 @@ export const featuredProjects = [
   { owner: 'CodysseyTabula', repo: 'Eduform', team: true, title: 'Eduform', category: 'school', description: '학생 정보와 학기별 IEP를 관리하고 AI 학습 계획 작성을 지원하는 서비스.', technologies: ['React', 'TypeScript', 'FastAPI', 'PostgreSQL'] },
   { owner: 'FRONTENDBOOTCAMP-12th', repo: 'Enter-8ollow', team: true, title: 'Enter-8ollow', category: 'development', description: '교육생 커뮤니티를 따라 만들며 웹 구현을 익힌 클론 코딩 팀 프로젝트.', technologies: ['HTML5', 'JavaScript', 'Vite', 'PocketBase'] },
   { owner: 'FRONTENDBOOTCAMP-12th', repo: '2gether-kongtteok', team: true, title: '말랑콩떡', category: 'development', description: '하루 감정을 기록하고 AI 응답과 감정 통계를 확인하는 일기 서비스.', technologies: ['React', 'TypeScript', 'Tailwind CSS', 'Supabase'] },
+  { owner: 'ssyuung', repo: 'ssyung', link: 'https://github.com/ssyuung', team: true, title: '마디 (MADI)', category: 'school', description: '특수교사와 지원인력 사이의 일정과 정보를 연결하는 특수학급 협업 서비스', technologies: ['TypeScript', 'React'] },
 ];

@@ -3,6 +3,10 @@
 .header-inner { display: flex; align-items: center; justify-content: space-between; min-height: var(--header-height); gap: 20px; }
 .header-actions { display: flex; gap: 4px; }
 #navigation { display: none; position: absolute; top: var(--header-height); left: 0; right: 0; padding: 16px 20px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.no-js .site-header { position: static; }
+.no-js .header-inner { flex-wrap: wrap; }
+.no-js #navigation { display: flex; flex-wrap: wrap; position: static; order: 3; width: 100%; padding: 0 0 16px; border: 0; background: transparent; }
+.no-js .header-actions { display: none; }
 #navigation.active { display: flex; flex-direction: column; }
 #navigation a { padding: 12px; text-decoration: none; font-size: .85rem; color: var(--muted); }
 #navigation a:hover, #navigation a[aria-current] { color: var(--accent); }
@@ -45,12 +49,13 @@
 .project-status { margin: 24px 0 16px; font-size: .75rem; }
 .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 20px; }
 .project-card { --project-color: var(--lavender); background: color-mix(in srgb, var(--project-color) var(--project-strength), var(--surface)); border-radius: var(--radius); transition: transform var(--transition), box-shadow var(--transition); }
+.project-card[data-reveal] { transition: opacity 520ms cubic-bezier(.22, 1, .36, 1), transform 520ms cubic-bezier(.22, 1, .36, 1), box-shadow var(--transition); }
 .project-card[data-category="education"] { --project-color: var(--lime); }
 .project-card[data-category="school"] { --project-color: var(--sky); }
 .project-card[data-category="development"] { --project-color: var(--lavender); }
-.project-card-link { display: flex; flex-direction: column; height: 100%; min-height: 264px; padding: 26px; border-radius: inherit; text-decoration: none; }
+.project-card-link { display: flex; flex-direction: column; height: 100%; min-height: 220px; padding: 20px; border-radius: inherit; text-decoration: none; }
 .project-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
-.project-card-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 28px; }
+.project-card-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 14px; }
 .project-labels { display: flex; align-items: center; flex-wrap: wrap; column-gap: 8px; row-gap: 4px; font-size: .72rem; font-weight: 400; color: var(--text); }
 .project-category, .project-team { font: inherit; color: inherit; }
 .project-team { white-space: nowrap; }
@@ -58,7 +63,7 @@
 .project-arrow { transform: rotate(-45deg); transition: transform var(--transition); }
 .project-card:hover .project-arrow, .project-card-link:focus-visible .project-arrow { transform: translate(2px, -2px) rotate(-45deg); }
 .project-card h3 { font-size: 1.25rem; }
-.project-card p { font-size: .85rem; color: var(--text); margin: 12px 0 24px; }
+.project-card p { font-size: .85rem; color: var(--text); margin: 8px 0 16px; }
 .project-card .badges { margin-top: auto; column-gap: 6px; row-gap: 5px; }
 .email-link { display: inline-flex; gap: 10px; align-items: center; font-size: .9rem; }
 .contact-form { display: grid; gap: 12px; }

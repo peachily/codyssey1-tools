@@ -8,7 +8,9 @@ export function selectProjects(repos) {
   return featuredProjects.map(meta => {
     const owner = meta.owner || config.githubUser;
     const repo = repos.find(item => item.name === meta.repo && !item.private && item.owner?.login?.toLowerCase() === owner.toLowerCase());
-    return repo && safeUrl(repo.html_url) ? { ...meta, owner, language: repo.language || '기타', description: meta.description || repo.description || '설명을 준비하고 있습니다.', github: safeUrl(repo.html_url), createdAt: repo.created_at } : null;
+    const repositoryUrl = safeUrl(repo?.html_url);
+    const github = safeUrl(meta.link || repositoryUrl);
+    return repositoryUrl && github ? { ...meta, owner, language: repo.language || '기타', description: meta.description || repo.description || '설명을 준비하고 있습니다.', github, createdAt: repo.created_at } : null;
   }).filter(Boolean).sort((a, b) => {
     const dateDifference = (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0);
     return dateDifference || `${a.owner}/${a.repo}`.localeCompare(`${b.owner}/${b.repo}`);
@@ -49,11 +51,12 @@ function card(project) {
   top.append(labels, arrow);
   const heading = element('h3', '', project.title);
   heading.id = headingId;
-  heading.append(element('span', 'sr-only', ' GitHub 저장소 (새 탭)'));
+  heading.append(element('span', 'sr-only', project.link ? ' GitHub 조직 페이지 (새 탭)' : ' GitHub 저장소 (새 탭)'));
   const badges = element('div', 'badges');
   badges.append(...project.technologies.map(technology => createTechnologyBadge(technology, { compact: true })));
   link.append(top, heading, element('p', '', project.description), badges);
   article.append(link);
+  article.dataset.reveal = '';
   return article;
 }
 function errorMessage(error) {
@@ -116,18 +119,20 @@ export async function fetchProjectSources(fetcher = fetch) {
   }
   return { repos, failures };
 }
-export function initProjects() {
+export function initProjects({ onCardsRendered } = {}) {
   const list = document.querySelector('#project-list');
   const status = document.querySelector('#project-status');
   const retry = document.querySelector('#project-retry');
   const language = document.querySelector('#language-filter');
   const categoryButtons = [...document.querySelectorAll('[data-category]')];
   const state = { phase: 'loading', projects: [], error: '', category: 'all', language: 'all', failures: [] };
+  const preview = new URLSearchParams(document.location.search).get('preview') === 'projects';
   function render() {
     list.setAttribute('aria-busy', String(state.phase === 'loading'));
     retry.hidden = !['error', 'partial'].includes(state.phase);
     status.dataset.state = state.phase;
     list.replaceChildren();
+    if (state.phase === 'loading' || state.phase === 'error') onCardsRendered?.([]);
     categoryButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.category === state.category)));
     language.value = state.language;
     if (state.phase === 'loading') status.textContent = 'GitHub에서 프로젝트를 불러오고 있습니다…';
@@ -135,17 +140,31 @@ export function initProjects() {
     else {
       const visible = filterProjects(state.projects, state.category, state.language);
       status.textContent = visible.length ? `${visible.length}개의 프로젝트` : '조건에 맞는 프로젝트가 없습니다. 다른 카테고리나 언어를 선택해 주세요.';
+      if (preview) status.textContent += ' · 카드 디자인 미리보기';
       if (state.failures.length) status.textContent += ` · 일부 저장소를 불러오지 못했습니다: ${state.failures.map(failure => `${failure.source} (${failure.message})`).join(', ')}`;
-      list.append(...visible.map(card));
+      const cards = visible.map(card);
+      list.append(...cards);
+      onCardsRendered?.(cards);
     }
   }
   async function load() {
     if (retry.disabled) return;
     state.phase = 'loading'; retry.disabled = true; render();
     try {
-      const { repos, failures } = await fetchProjectSources();
-      state.projects = selectProjects(repos); state.failures = failures;
-      state.phase = failures.length ? 'partial' : 'success';
+      if (preview) {
+        state.projects = featuredProjects.map(project => ({
+          ...project,
+          owner: project.owner || config.githubUser,
+          github: project.link || `https://github.com/${project.owner || config.githubUser}/${project.repo}`,
+          language: project.technologies[0],
+        }));
+        state.failures = [];
+        state.phase = 'success';
+      } else {
+        const { repos, failures } = await fetchProjectSources();
+        state.projects = selectProjects(repos); state.failures = failures;
+        state.phase = failures.length ? 'partial' : 'success';
+      }
       const languages = [...new Set(state.projects.map(project => project.language))].sort();
       language.replaceChildren(new Option('모든 언어', 'all'), ...languages.map(value => new Option(value, value)));
       if (!languages.includes(state.language)) state.language = 'all';
