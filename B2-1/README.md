@@ -50,7 +50,7 @@ Python **3.10 이상**이 설치된 환경에서 실행하며, 별도의 외부 
 
 ```bash
 cd B2-1
-python3 -m peach_pantry
+python3 -m peach_pantry --help
 ```
 
 ### 1. 거래 추가 — `add`
