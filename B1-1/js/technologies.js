@@ -1,4 +1,4 @@
-// Shared brand mapping. Unknown or non-brand technologies remain readable text.
+// Skills와 Projects에서 같은 브랜드 로고를 사용함. 로고가 없어도 기술명은 글자로 표시됨.
 const iconFiles = Object.freeze({
   HTML5: 'html5', CSS3: 'css3', JavaScript: 'javascript', TypeScript: 'typescript',
   React: 'react', Vite: 'vitejs', 'Tailwind CSS': 'tailwindcss',

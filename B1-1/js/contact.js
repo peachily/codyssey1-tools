@@ -17,6 +17,7 @@ export function initContact() {
   const button = form.querySelector('[type="submit"]');
   const fields = [...form.querySelectorAll('input, textarea')];
   const state = { phase: 'idle', errors: {}, message: '' };
+  // 입력 오류와 전송 상태를 필드별 메시지·버튼 비활성화·상태 문구에 반영함.
   function render() {
     fields.forEach(field => {
       const error = state.errors[field.name] || '';
@@ -30,6 +31,7 @@ export function initContact() {
     status.textContent = state.message;
   }
   fields.forEach(field => {
+    // 입력할 때마다 해당 필드의 오류 상태를 다시 계산하고 화면을 갱신함.
     field.addEventListener('input', () => {
       state.errors[field.name] = validateField(field.name, field.value);
       if (state.phase === 'success') { state.phase = 'idle'; state.message = ''; }
@@ -38,6 +40,7 @@ export function initContact() {
     field.addEventListener('blur', () => { state.errors[field.name] = validateField(field.name, field.value); render(); });
   });
   form.addEventListener('submit', async event => {
+    // 브라우저의 기본 제출을 막고, 검증을 통과한 값만 Formspree로 보냄.
     event.preventDefault();
     if (state.phase === 'sending') return;
     fields.forEach(field => { state.errors[field.name] = validateField(field.name, field.value); });
@@ -49,6 +52,7 @@ export function initContact() {
       state.phase = 'error'; state.message = '메시지가 전송되지 않았습니다. 잠시 후 다시 시도해 주세요.'; render(); return;
     }
     const body = Object.fromEntries(fields.map(field => [field.name, field.value.trim()]));
+    // 전송 중 → 성공/오류로 상태를 바꾸면 finally의 render()가 결과를 표시함.
     state.phase = 'sending'; state.message = '메시지를 보내고 있습니다…'; render();
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);

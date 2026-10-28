@@ -1,12 +1,12 @@
-// Public configuration only. Never put API keys or email service secrets here.
+// 브라우저에 공개되는 설정이므로 API 키나 이메일 서비스 비밀값을 넣지 않음.
 export const config = {
   githubUser: 'peachily',
   formEndpoint: 'https://formspree.io/f/mnppayoo',
 };
 export const categories = { education: '교육용', school: '학교 업무용', development: '개발 프로젝트' };
-// Editorial metadata: selection/title/category/description/verified technologies.
-// API owns public existence, primary language, GitHub URL and creation-date ordering.
-// Array order is not display order.
+// 대표 프로젝트의 제목·분류·소개·기술을 정리함.
+// 실제 공개 여부·주 언어·저장소 주소·생성일은 GitHub API 응답으로 확인함.
+// 배열에 적은 순서가 화면 정렬 순서는 아님.
 export const featuredProjects = [
   { repo: 'school01-numbermonster', title: '숫자 몬스터 잡기', category: 'education', description: '학생별 수준에 맞춰 1부터 9까지의 수 읽기를 연습하는 게임.', technologies: ['JavaScript', 'HTML5', 'CSS3', 'Node.js'] },
   { repo: 'school02-countcake', title: '케이크 만들기', category: 'education', description: '교사와 학생의 화면을 연결해 1부터 9까지 개수 세기를 연습하는 게임.', technologies: ['JavaScript', 'HTML5', 'CSS3', 'Node.js'] },

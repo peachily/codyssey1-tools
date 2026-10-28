@@ -10,7 +10,7 @@ button, select { cursor: pointer; }
 button { border: 0; }
 img { display: block; max-width: 100%; }
 button, a { touch-action: manipulation; }
-/* Suppress pointer-only browser rings; preserve a single keyboard focus ring. */
+/* 마우스 클릭 테두리는 줄이고, 키보드로 이동할 때는 포커스 표시를 유지함. */
 :where(a[href], button, input, textarea, select, [tabindex]):focus:not(:focus-visible) { outline: none; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 5px; }
 [data-pointer-focus] :is(#language-filter, #contact-form input, #contact-form textarea):focus { outline: none; }

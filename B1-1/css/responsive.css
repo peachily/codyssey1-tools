@@ -1,4 +1,5 @@
 .about-layout > *, .contact-layout > *, .skills-grid > *, .projects-grid > * { min-width: 0; }
+/* 모바일 기본 스타일에서 768px 이상일 때 2열 배치와 데스크톱 메뉴를 적용함. */
 @media (min-width: 768px) {
   .container { width: min(var(--content), calc(100% - 80px)); }
   #navigation { display: flex; position: static; padding: 0; border: 0; background: transparent; margin-left: auto; gap: 16px; }
@@ -12,6 +13,7 @@
   .skill-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .contact-layout { grid-template-columns: 1fr 1.2fr; gap: 40px; }
 }
+/* 1024px 이상에서는 콘텐츠 사이의 간격을 넓혀 큰 화면을 활용함. */
 @media (min-width: 1024px) {
   .hero { grid-template-columns: minmax(0, 1fr) 180px; padding-block: 112px 120px; gap: 80px; }
   .hero-portrait img { width: 180px; height: 180px; }

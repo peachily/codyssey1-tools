@@ -38,7 +38,7 @@ textarea { resize: none; min-height: 150px; }
 .skill-card:nth-child(3), .contact-form[data-reveal] { transition-delay: 140ms; }
 .typing::after { content: ''; display: inline-block; height: 1em; border-right: 1px solid currentColor; margin-left: 3px; vertical-align: middle; }
 @media (prefers-reduced-motion: reduce) { .reveal-pending, .hero-description-pending { opacity: 1; transform: none; } }
-/* Keep a useful focus target after anchor navigation without a large section outline. */
+/* 앵커 이동 뒤 키보드 포커스 위치는 유지하되, 섹션 전체의 큰 테두리는 숨김. */
 section[tabindex="-1"]:focus, main[tabindex="-1"]:focus, body[tabindex="-1"]:focus { outline: none; }
 @media (forced-colors: active) {
   .language-field::after { background: ButtonText; forced-color-adjust: none; }

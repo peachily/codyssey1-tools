@@ -1,4 +1,5 @@
 export function initAnimations() {
+  // 모션 감소 설정을 켠 사용자는 타이핑·등장·스크롤 효과 없이 내용을 바로 볼 수 있음.
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const targets = new Set();
   const lines = [...document.querySelectorAll('[data-type-line]')];
@@ -74,6 +75,7 @@ export function initAnimations() {
   }
   if (!reduced.matches) {
     if ('IntersectionObserver' in window) {
+      // 요소가 화면에 20% 이상 들어오면 대기 클래스를 제거해 CSS 등장 효과를 시작함.
       observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {

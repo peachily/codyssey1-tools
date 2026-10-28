@@ -12,8 +12,8 @@
   --radius-sm: .625rem; --radius: 1rem; --radius-pill: 99rem;
   --shadow: 0 12px 35px #403c4308; --transition: 180ms ease;
   --content: 1120px; --header-height: 80px;
-  /* Mobile first breakpoints: 768px / 1024px (responsive.css).
-     CSS variables cannot be used in native media query conditions. */
+  /* 모바일 기본 스타일에서 768px·1024px 기준은 responsive.css에 적용함.
+     CSS 변수는 @media 조건에 직접 사용할 수 없음. */
 }
 [data-theme="dark"] {
   color-scheme: dark;
