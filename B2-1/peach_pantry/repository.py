@@ -38,6 +38,7 @@ class PantryRepository:
             self.save_budgets(())
 
     @staticmethod
+    # 이 메서드가 self나 cls 없이 동작하도록 지정
     def _metadata(last_id: int) -> dict:
         """거래 파일 첫 줄에 보관할 마지막 발급 번호를 만든다."""
         return {"record_type": "metadata", "last_id": last_id}

@@ -37,6 +37,8 @@ def validate_month(value: str) -> None:
 
 
 @dataclass(frozen=True)
+# 여러 속성을 가진 데이터를 클래스로 정의할 때 사용. frozen=True는 생성된 객체의 필드를 직접 변경하지 못하게 함.
+#  → 거래의 날짜, 금액, 카테고리 등을 하나의 객체로 묶고, 생성된 거래 객체의 속성을 직접 변경하지 못하게 설정
 class Transaction:
     """이모지가 포함되지 않은 하나의 거래 레코드."""
 
@@ -69,6 +71,8 @@ class Transaction:
     @classmethod
     def from_record(cls, record: dict) -> "Transaction":
         """JSON 배열로 저장된 태그를 튜플로 복원한다."""
+        # JSONL에서 읽은 딕셔너리 데이터를 Transaction 객체로 바꾸는 함수
+        # (cls: 이 메서드가 속한 클래스인 Transaction)
         fields = dict(record)
         tags = fields.get("tags")
         if not isinstance(tags, list):

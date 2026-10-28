@@ -14,7 +14,7 @@ CATEGORY_EMOJIS = {
 
 def format_title(title: str) -> str:
     """표시 너비 계산 없이 제목과 구분선을 구성한다."""
-    return f"복숭아창고 (Peach Pantry) | {title}\n{'─' * 40}"
+    return f"복숭아창고 | {title}\n{'─' * 40}"
 
 
 def print_error(message: str, hint: str, stream: TextIO | None = None) -> None:

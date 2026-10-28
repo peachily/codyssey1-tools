@@ -23,6 +23,7 @@ def read_jsonl(path: Path) -> Iterator[dict]:
                         "원본 파일을 백업한 뒤 해당 줄의 JSON 형식을 확인해 주세요.",
                     ) from exc
                 yield record
+                # 파일의 데이터를 한꺼번에 리스트로 반환하는 대신, 한 건씩 전달 가능. 큰 파일을 읽을 때 메모리 사용량을 줄이는 데 유리함.
     except UnicodeError as exc:
         raise PantryError(f"{path.name}을 UTF-8로 읽을 수 없습니다.",
                           "파일을 백업한 뒤 UTF-8 인코딩인지 확인해 주세요.") from exc

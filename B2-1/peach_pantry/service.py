@@ -154,7 +154,9 @@ class PantryService:
             raise PantryError("조회 건수가 올바르지 않습니다.",
                               "--limit에 0보다 큰 정수를 지정해 주세요.", exit_code=2)
         return heapq.nlargest(
+            # 최신 거래 N건 선택
             limit, self.repository.iter_transactions(),
+            # limit: 몇 건을 가져올지 / iter_transactions(): 저장된 거래를 하나씩 읽어옴 / key: 날짜 우선 비교, 날짜가 같으면 거래 ID로 비교
             key=lambda transaction: (transaction.date, transaction_number(transaction.id)),
         )
 
